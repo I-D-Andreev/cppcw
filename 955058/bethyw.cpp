@@ -26,6 +26,7 @@
 #include <string>
 #include <tuple>
 #include <unordered_set>
+#include <unordered_map>
 #include <vector>
 
 #include "lib_cxxopts.hpp"
@@ -53,6 +54,7 @@
 */
 int BethYw::run(int argc, char *argv[]) {
   auto cxxopts = BethYw::cxxoptsSetup();
+  // todo1: catch exception
   auto args = cxxopts.parse(argc, argv);
 
   // Print the help usage if requested
@@ -65,12 +67,19 @@ int BethYw::run(int argc, char *argv[]) {
   std::string dir = args["dir"].as<std::string>() + DIR_SEP;
 
   // Parse other arguments and import data
-  // auto datasetsToImport = BethYw::parseDatasetsArg(args);
+  auto datasetsToImport = BethYw::parseDatasetsArg(args);
+
+  std::cout << "Datasets: " << std::endl;
+  for (const auto& ds : datasetsToImport) {
+    std::cout << ds.CODE << " ";
+  }
+  std::cout << std::endl;
+
   // auto areasFilter      = BethYw::parseAreasArg(args);
   // auto measuresFilter   = BethYw::parseMeasuresArg(args);
   // auto yearsFilter      = BethYw::parseYearsArg(args);
 
-  Areas data = Areas();
+  // Areas data = Areas();
 
   // BethYw::loadAreas(data, dir, areasFilter);
   //
@@ -81,13 +90,13 @@ int BethYw::run(int argc, char *argv[]) {
   //                      measuresFilter,
   //                      yearsFilter);
 
-  if (args.count("json")) {
-    // The output as JSON
-    std::cout << data.toJSON() << std::endl;
-  } else {
-    // The output as tables
-    // std::cout << data << std::endl;
-  }
+  // if (args.count("json")) {
+  //   // The output as JSON
+  //   std::cout << data.toJSON() << std::endl;
+  // } else {
+  //   // The output as tables
+  //   // std::cout << data << std::endl;
+  // }
 
   return 0;
 }
@@ -178,29 +187,65 @@ cxxopts::Options BethYw::cxxoptsSetup() {
  */
 std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
     cxxopts::ParseResult& args) {
-  // This function is incomplete, but to get you started...
-  // You may want to delete much of these // comments too!
+
+  // Create the container for the return type
+  std::vector<InputFileSource> datasetsToImport;
 
   // Retrieve all valid datasets, see datasets.h
   size_t numDatasets = InputFiles::NUM_DATASETS;
   auto &allDatasets = InputFiles::DATASETS;
 
-  // Create the container for the return type
-  std::vector<InputFileSource> datasetsToImport;
+  // { dataset code : dataset position in array }
+  // Save the position in the datasets array so that the dataset is not copied.
+  std::unordered_map <std::string, unsigned int> datasets;
 
-  // You can get the std::vector of arguments from cxxopts like this.
-  // Note that this function will throw an exception if datasets is not set as 
-  // an argument. Check the documentation! Read it and understand it.
-  auto inputDatasets = args["datasets"].as<std::vector<std::string>>();
+  for (unsigned int i = 0; i< numDatasets; i++){
+    datasets[allDatasets[i].CODE] = i;
+  }
 
-  // You now need to compare the strings in this vector to the keys in
-  // allDatasets above. Populate datasetsToImport with the values
-  // from allDatasets above and then return a vector
+  
+  bool importAll = false;
+  // The dataset strings as taken from the command line input.
+  std::vector<std::string> inputDatasets;
 
-  // You'll want to ignore/remove the following lines of code, they simply
-  // import all datasets (for now) as an example to get you started
-  for(unsigned int i = 0; i < numDatasets; i++)
-      datasetsToImport.push_back(allDatasets[i]);
+  if(args.count("datasets")){
+    inputDatasets = args["datasets"].as<std::vector<std::string>>();
+  } 
+  else {
+    importAll = true;
+  }
+
+  // Check if we should import all datasets and whether they are all correct
+  for(const std::string& code : inputDatasets){
+    if(helpers::string_to_lower(code) == "all"){
+      importAll = true;
+      continue;
+    }
+
+    if(datasets.count(code) == 0){
+        throw std::invalid_argument("No dataset matches key: " + code);
+    }
+  }
+
+
+  if(importAll){
+    datasetsToImport = std::vector<InputFileSource>(std::begin(allDatasets), std::end(allDatasets));
+  }
+  else {
+    // Make sure that a dataset is not imported twice if it is repeated
+    // in the command line input.
+    std::unordered_set<unsigned int> alreadyImported;
+
+    for(const std::string& code : inputDatasets){
+      unsigned int idx = datasets[code];
+
+      if(alreadyImported.count(idx) == 0){
+        alreadyImported.insert(idx);
+        datasetsToImport.push_back(allDatasets[idx]);
+      }
+    }
+
+  }
 
   return datasetsToImport;
 }
@@ -389,3 +434,10 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
 
 
 
+std::string helpers::string_to_lower(std::string str){
+  for (char& c : str){
+    c = std::tolower(c);
+  }
+
+  return str;
+}

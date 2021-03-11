@@ -62,4 +62,10 @@ std::unordered_set<std::string> parseAreasArg(cxxopts::ParseResult& args);
 
 } // namespace BethYw
 
+
+namespace helpers {
+  std::string string_to_lower(std::string str);
+
+}
+
 #endif // BETHYW_H_
