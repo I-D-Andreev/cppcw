@@ -27,9 +27,7 @@
   @param source
     A unique identifier for a source (i.e. the location).
 */
-InputSource::InputSource(const std::string& source) {
-  throw std::logic_error("InputSource::InputSource() has not been implemented!");
-}
+InputSource::InputSource(const std::string& _source) : source(_source) {}
 
 /*
   TODO: InputSource::getSource()
@@ -39,6 +37,9 @@ InputSource::InputSource(const std::string& source) {
   @return
     A non-modifable value for the source passed into the construtor.
 */
+std::string InputSource::getSource() const noexcept {
+  return source;
+}
 
 
 /*
@@ -52,8 +53,7 @@ InputSource::InputSource(const std::string& source) {
   @example
     InputFile input("data/areas.csv");
 */
-InputFile::InputFile(const std::string& filePath) : InputSource(filePath) {
-  throw std::logic_error("InputFile::InputFile() has not been implemented!");
+InputFile::InputFile(const std::string& filePath) : InputSource(filePath), inputStream() {
 }
 
 /*
@@ -73,3 +73,17 @@ InputFile::InputFile(const std::string& filePath) : InputSource(filePath) {
     InputFile input("data/areas.csv");
     input.open();
 */
+std::istream& InputFile::open(){
+  if(inputStream.is_open()){
+    return inputStream;
+  }
+
+  inputStream.open(getSource(), std::ifstream::in);
+  return inputStream;
+}
+
+InputFile::~InputFile(){
+  if(inputStream.is_open()){
+    inputStream.close();
+  }
+}

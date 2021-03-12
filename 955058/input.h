@@ -36,7 +36,13 @@
 */
 class InputSource {
 protected:
-  InputSource(const std::string& source);
+  std::string source;
+  InputSource(const std::string& _source);
+  virtual ~InputSource() = default;
+
+public:
+  std::string getSource() const noexcept;
+  virtual std::istream& open() = 0;
 };
 
 /*
@@ -48,8 +54,14 @@ protected:
   to overload.
 */
 class InputFile : public InputSource {
+
+private:
+  std::ifstream inputStream;
+
 public:
   InputFile(const std::string& filePath);
+  virtual ~InputFile();
+  virtual std::istream& open();
 };
 
 #endif // INPUT_H_
