@@ -149,7 +149,11 @@ int BethYw::run(int argc, char *argv[]) {
   std::cout << std::endl;
 
 
-  // auto yearsFilter      = BethYw::parseYearsArg(args);
+  auto yearsFilter = BethYw::parseYearsArg(args);
+
+  std::cout << "Years: " << std::endl;
+  std::cout << std::get<0>(yearsFilter) << " - " << std::get<1>(yearsFilter);
+  std::cout << std::endl;
 
   // Areas data = Areas();
 
@@ -410,6 +414,48 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg(
     the message: Invalid input for years argument
 */
 
+std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResult& args) {
+  
+  const std::string& yearArg = args["years"].as<std::string>();
+  const std::string invalidArgMessage = "Invalid input for years argument";
+
+  std::vector<std::string> years = helpers::splitString(yearArg, '-');
+
+  // Check that year input is correct
+  
+  // The arg should contain either 1 or 2 years
+  if (years.size() > 2 || years.size() < 1) {
+    throw std::invalid_argument(invalidArgMessage);
+  }
+
+  // All the years in the arg should be numbers
+  for(const auto& year : years){
+    if(!helpers::isNumber(year)){
+      throw std::invalid_argument(invalidArgMessage);
+    }
+  }
+
+  // The years should have the correct number of digits.
+  // The years are either "0" or a four digit number.
+  for(const auto& year : years){
+    if(year != "0" && year.size() != 4) {
+      throw std::invalid_argument(invalidArgMessage);
+    }
+  }
+
+  // Due to our previous check, the year is guaranteed to be a non-negative number.
+  std::vector<unsigned int> numYears;
+  for(const auto& strYear: years) {
+    numYears.push_back(static_cast<unsigned int>(helpers::stringToNumber(strYear)));
+  }
+
+  if (numYears[0] == 0 || (numYears.size() == 2 && numYears[1] == 0)){
+    return {0, 0};
+  }
+
+  return {numYears[0], numYears[numYears.size()-1]};
+}
+
 
 /*
   TODO: BethYw::loadAreas(areas, dir, areasFilter)
@@ -505,10 +551,48 @@ std::unordered_set<std::string> BethYw::parseMeasuresArg(
 
 
 
-std::string helpers::stringToLower(std::string str){
+std::string helpers::stringToLower(std::string str) {
   for (char& c : str){
     c = std::tolower(c);
   }
 
   return str;
+}
+
+std::vector<std::string> helpers::splitString(const std::string& str, char delimiter) {
+  std::vector<std::string> stringParts;
+  std::string temp;
+
+  for (const char& c : str){
+    if (c == delimiter){
+      stringParts.push_back(temp);
+      temp.clear();
+    } 
+    else {
+      temp+= c;
+    }
+  }
+
+  // Add the last element
+  if(!temp.empty()){
+    stringParts.push_back(temp);
+  }
+
+  return stringParts;
+}
+
+
+bool helpers::isNumber(const std::string& str){
+  for(const char& c : str){
+    if(!std::isdigit(c)){
+      return false;
+    }
+  }
+
+  return true;
+}
+
+
+int helpers::stringToNumber(const std::string& str) {
+  return std::stoi(str);
 }

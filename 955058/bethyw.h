@@ -18,6 +18,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <tuple>
 
 #include "lib_cxxopts.hpp"
 
@@ -70,11 +71,20 @@ std::unordered_set<std::string> parseAreasArg(cxxopts::ParseResult& args);
 std::unordered_set<std::string> parseMeasuresArg(cxxopts::ParseResult& args);
 
 
+/*
+  Parse the year argument and return a tuple 
+  containing the start and end (inclusive) of the year range.
+*/
+std::tuple<unsigned int, unsigned int> parseYearsArg(cxxopts::ParseResult& args);
+
 } // namespace BethYw
 
 
 namespace helpers {
   std::string stringToLower(std::string str);
+  std::vector<std::string> splitString(const std::string& str, char delimiter);
+  bool isNumber(const std::string& str);
+  int stringToNumber(const std::string& str);
 }
 
 #endif // BETHYW_H_
