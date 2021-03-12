@@ -123,37 +123,9 @@ int BethYw::run(int argc, char *argv[]) {
 
   // Parse other arguments and import data
   auto datasetsToImport = BethYw::parseDatasetsArg(args);
-
-  std::cout << "Datasets: " << std::endl;
-  for (const auto& ds : datasetsToImport) {
-    std::cout << ds.CODE << " ";
-  }
-  std::cout << std::endl;
-
-
   auto areasFilter = BethYw::parseAreasArg(args);
-  
-  std::cout << "Areas: " << std::endl;
-  for (const auto& area : areasFilter) {
-    std::cout << area << " ";
-  }
-  std::cout << std::endl;
-
-  
   auto measuresFilter = BethYw::parseMeasuresArg(args);
-
-  std::cout << "Measures: " << std::endl;
-  for (const auto& measure : measuresFilter) {
-    std::cout << measure << " ";
-  }
-  std::cout << std::endl;
-
-
   auto yearsFilter = BethYw::parseYearsArg(args);
-
-  std::cout << "Years: " << std::endl;
-  std::cout << std::get<0>(yearsFilter) << " - " << std::get<1>(yearsFilter);
-  std::cout << std::endl;
 
   // Areas data = Areas();
 
