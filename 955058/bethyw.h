@@ -33,9 +33,11 @@ const char DIR_SEP =
 namespace BethYw {
 
 /*
-  TODO: Enter your student number here!
+  Student number!
 */
 const std::string STUDENT_NUMBER = "955058";
+
+const std::string IMPORT_ALL_ARG = "all";
 
 /*
   Run Beth Yw?, parsing the command line arguments and acting upon them.
@@ -60,12 +62,19 @@ std::vector<BethYw::InputFileSource> parseDatasetsArg(
 */
 std::unordered_set<std::string> parseAreasArg(cxxopts::ParseResult& args);
 
+
+/*
+  Parse the measures argument and return a std::unordered_set of all the
+  measures to import, or an empty set if all measures should be imported.
+*/
+std::unordered_set<std::string> parseMeasuresArg(cxxopts::ParseResult& args);
+
+
 } // namespace BethYw
 
 
 namespace helpers {
-  std::string string_to_lower(std::string str);
-
+  std::string stringToLower(std::string str);
 }
 
 #endif // BETHYW_H_

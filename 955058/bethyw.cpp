@@ -36,6 +36,61 @@
 #include "bethyw.h"
 #include "input.h"
 
+// Anonymous namespace for helper functions private to bethyw.cpp.
+namespace {
+  /*
+    Parses a command line argument, which is optional. If it doesn't 
+    exist or exists and contains "all" as value (any case), all areas should be
+    imported, i.e., the filter should be an empty set.
+
+    Does not check validity of arguments.
+    Filtering is case insensitive.
+
+    ! Helper function for parseAreasArg and parseMeasuresArg as they work the same.
+
+    @param args
+      Parsed program arguments
+    
+    @param argName
+      The name of the argument we want to parse. E.g. "areas"
+
+    @return
+      An std::unordered_set of std::strings corresponding to specific argument
+      to import, or an empty set if all should be imported.
+
+    // @throws todo1?
+    //   std::invalid_argument if the argument contains an invalid areas value with
+    //   message: Invalid input for area argument
+  */
+  // todo1: should this throw
+  std::unordered_set<std::string> parseStringArg(
+      const cxxopts::ParseResult& args,
+      const std::string& argName){
+    
+    // The set to return. 
+    // Does not deal with repetition when args have different letter case.
+    std::unordered_set<std::string> parsedArgs;
+
+    if(args.count(argName) == 0){
+      return std::unordered_set<std::string>();
+    }
+
+    const auto& inputArgs = args[argName].as<std::vector<std::string>>();
+
+    for(const std::string& arg : inputArgs){
+      if(helpers::stringToLower(arg) == BethYw::IMPORT_ALL_ARG){
+        return std::unordered_set<std::string>();
+      }
+
+      parsedArgs.insert(arg);
+    }
+
+    return parsedArgs;
+  }
+
+} // end of anonymous namespace
+
+
 /*
   Run Beth Yw?, parsing the command line arguments, importing the data,
   and outputting the requested data to the standard output/error.
@@ -75,8 +130,25 @@ int BethYw::run(int argc, char *argv[]) {
   }
   std::cout << std::endl;
 
-  // auto areasFilter      = BethYw::parseAreasArg(args);
-  // auto measuresFilter   = BethYw::parseMeasuresArg(args);
+
+  auto areasFilter = BethYw::parseAreasArg(args);
+  
+  std::cout << "Areas: " << std::endl;
+  for (const auto& area : areasFilter) {
+    std::cout << area << " ";
+  }
+  std::cout << std::endl;
+
+  
+  auto measuresFilter = BethYw::parseMeasuresArg(args);
+
+  std::cout << "Measures: " << std::endl;
+  for (const auto& measure : measuresFilter) {
+    std::cout << measure << " ";
+  }
+  std::cout << std::endl;
+
+
   // auto yearsFilter      = BethYw::parseYearsArg(args);
 
   // Areas data = Areas();
@@ -217,7 +289,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
 
   // Check if we should import all datasets and whether they are all correct
   for(const std::string& code : inputDatasets){
-    if(helpers::string_to_lower(code) == "all"){
+    if(helpers::stringToLower(code) == BethYw::IMPORT_ALL_ARG){
       importAll = true;
       continue;
     }
@@ -277,16 +349,10 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
 */
 std::unordered_set<std::string> BethYw::parseAreasArg(
     cxxopts::ParseResult& args) {
-  // The unordered set you will return
-  std::unordered_set<std::string> areas;
-
-  // Retrieve the areas argument like so:
-  auto temp = args["areas"].as<std::vector<std::string>>();
   
-  // ...
-  
-  return areas;
+  return ::parseStringArg(args, "areas");
 }
+
 
 /*
   TODO: BethYw::parseMeasuresArg(args)
@@ -313,6 +379,11 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
     std::invalid_argument if the argument contains an invalid measures value
     with the message: Invalid input for measures argument
 */
+std::unordered_set<std::string> BethYw::parseMeasuresArg(
+    cxxopts::ParseResult& args) {
+  
+  return ::parseStringArg(args, "measures");
+}
 
 
 /*
@@ -434,7 +505,7 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
 
 
 
-std::string helpers::string_to_lower(std::string str){
+std::string helpers::stringToLower(std::string str){
   for (char& c : str){
     c = std::tolower(c);
   }
