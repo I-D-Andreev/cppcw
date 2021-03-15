@@ -81,10 +81,20 @@ std::tuple<unsigned int, unsigned int> parseYearsArg(cxxopts::ParseResult& args)
 
 
 namespace helpers {
+  // Convert to lowerCase letters.
   std::string stringToLower(std::string str);
+  
+  // Split the string based on a provided delimiter. 
   std::vector<std::string> splitString(const std::string& str, char delimiter);
-  bool isNumber(const std::string& str);
-  int stringToNumber(const std::string& str);
+  
+  // Check if a string contains only digits.
+  bool isNumber(const std::string& numStr);
+
+  // Check if a string contains only leters.
+  bool isWord(const::std::string& wordStr);
+
+  // Convert a string to a number.
+  int stringToNumber(const std::string& numStr);
 }
 
 #endif // BETHYW_H_

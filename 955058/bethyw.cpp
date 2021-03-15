@@ -554,8 +554,8 @@ std::vector<std::string> helpers::splitString(const std::string& str, char delim
 }
 
 
-bool helpers::isNumber(const std::string& str){
-  for(const char& c : str){
+bool helpers::isNumber(const std::string& numStr){
+  for(char c : numStr){
     if(!std::isdigit(c)){
       return false;
     }
@@ -565,6 +565,16 @@ bool helpers::isNumber(const std::string& str){
 }
 
 
-int helpers::stringToNumber(const std::string& str) {
-  return std::stoi(str);
+int helpers::stringToNumber(const std::string& numStr) {
+  return std::stoi(numStr);
+}
+
+bool helpers::isWord(const std::string& wordStr) {
+  for (char c : wordStr) {
+    if(!isalpha(c)) {
+      return false;
+    }
+  }
+
+  return true;
 }

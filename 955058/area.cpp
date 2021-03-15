@@ -20,6 +20,7 @@
 #include <stdexcept>
 
 #include "area.h"
+#include "bethyw.h"
 
 /*
   TODO: Area::Area(localAuthorityCode)
@@ -32,9 +33,10 @@
   @example
     Area("W06000023");
 */
-Area::Area(const std::string& localAuthorityCode) {
-  throw std::logic_error("Area::Area() has not been implemented!");
-}
+Area::Area(const std::string& localAuthorityCode_) : 
+    localAuthorityCode(localAuthorityCode_),
+    names(),
+    measures() {}
 
 /*
   TODO: Area::getLocalAuthorityCode()
@@ -50,7 +52,9 @@ Area::Area(const std::string& localAuthorityCode) {
     ...
     auto authCode = area.getLocalAuthorityCode();
 */
-
+std::string Area::getLocalAuthorityCode() const {
+  return localAuthorityCode;
+}
 
 /*
   TODO: Area::getName(lang)
@@ -76,7 +80,17 @@ Area::Area(const std::string& localAuthorityCode) {
     ...
     auto name = area.getName(langCode);
 */
+std::string Area::getName(const std::string& langCode) const {
+  std::string lowerCaseCode = helpers::stringToLower(langCode);
 
+  auto it = names.find(lowerCaseCode);
+
+  if(it == names.end()) {
+    throw std::out_of_range("A name in language {" + langCode + "} does not exist!");
+  }
+
+  return it->second;
+}
 
 /*
   TODO: Area::setName(lang, name)
@@ -103,6 +117,17 @@ Area::Area(const std::string& localAuthorityCode) {
     std::string langValueWelsh = "Powys";
     area.setName(langCodeWelsh, langValueWelsh);
 */
+void Area::setName(const std::string& langCode, const std::string& name) {
+  constexpr int LANG_CODE_LENGTH_REQUIREMENT = 3;
+
+  if(!helpers::isWord(langCode) || langCode.length() != LANG_CODE_LENGTH_REQUIREMENT) {
+    throw std::invalid_argument("Area::setName: Language code must be three alphabetical letters only");
+  }
+
+  std::string lowerCaseCode = helpers::stringToLower(langCode);
+
+  names[lowerCaseCode] = name;
+}
 
 
 /*
