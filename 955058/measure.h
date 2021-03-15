@@ -35,6 +35,7 @@ private:
   // use sorted map so that we can have the years in order
   std::map<size_t, double> values;
 public:
+  Measure();
   Measure(std::string codename_, const std::string& label_);
 
   std::string getCodeName() const noexcept;
@@ -46,6 +47,7 @@ public:
   double getDifference() const noexcept;
   double getDifferenceAsPercentage() const noexcept;
   double getAverage() const noexcept;
+  void combineMeasure(const Measure& other);
 
   friend bool operator==(const Measure& lhs, const Measure& rhs);
 };

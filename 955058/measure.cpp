@@ -24,6 +24,8 @@
 #include "measure.h"
 #include "bethyw.h"
 
+Measure::Measure() : Measure("", ""){}
+
 /*
   TODO: Measure::Measure(codename, label);
 
@@ -289,6 +291,21 @@ double Measure::getAverage() const noexcept {
   return sum / size();
 }
 
+/*
+  Combine a measure with another one.
+  This will result in any overlapping values being overriden,
+  while all non-overlapping ones will be included.
+*/
+void Measure::combineMeasure(const Measure& other) {
+  // todo1: Is this correct?
+  codename = other.codename;
+  label = other.label;
+
+  for(const auto& keyValuePair: other.values) {
+    values[keyValuePair.first] = keyValuePair.second;
+  }
+}
+
 
 /*
   TODO: operator<<(os, measure)
@@ -344,7 +361,8 @@ double Measure::getAverage() const noexcept {
     true if both Measure objects have the same codename, label and data; false
     otherwise
 */
-
 bool operator==(const Measure& lhs, const Measure& rhs) {
   return (lhs.codename == rhs.codename) && (lhs.label == rhs.label) && (lhs.values == rhs.values);
 }
+
+
