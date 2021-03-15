@@ -46,7 +46,7 @@ Measure::Measure() : Measure("", ""){}
     Measure measure(codename, label);
 */
 Measure::Measure(std::string codename_, const std::string& label_) :
-  codename(codename_),
+  codename(helpers::stringToLower(codename_)),
   label(label_),
   values(){}
 
