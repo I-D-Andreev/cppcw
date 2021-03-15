@@ -22,6 +22,7 @@
 #include <string>
 
 #include "measure.h"
+#include "bethyw.h"
 
 /*
   TODO: Measure::Measure(codename, label);
@@ -42,9 +43,10 @@
     std::string label = "Population";
     Measure measure(codename, label);
 */
-Measure::Measure(std::string codename, const std::string &label) {
-  throw std::logic_error("Measure::Measure() has not been implemented!");
-}
+Measure::Measure(std::string codename_, const std::string& label_) :
+  codename(codename_),
+  label(label_),
+  values(){}
 
 /*
   TODO: Measure::getCodename()
@@ -65,6 +67,9 @@ Measure::Measure(std::string codename, const std::string &label) {
     ...
     auto codename2 = measure.getCodename();
 */
+std::string Measure::getCodeName() const noexcept {
+  return codename;
+}
 
 
 /*
@@ -86,6 +91,9 @@ Measure::Measure(std::string codename, const std::string &label) {
     ...
     auto label = measure.getLabel();
 */
+std::string Measure::getLabel() const noexcept {
+  return label;
+}
 
 
 /*
@@ -102,6 +110,9 @@ Measure::Measure(std::string codename, const std::string &label) {
     ...
     measure.setLabel("New Population");
 */
+void Measure::setLabel(const std::string& newLabel) {
+  label = newLabel;
+}
 
 
 /*
@@ -131,6 +142,15 @@ Measure::Measure(std::string codename, const std::string &label) {
     ...
     auto value = measure.getValue(1999); // returns 12345678.9
 */
+double Measure::getValue(size_t year) const {
+  auto it = values.find(year);
+
+  if(it == values.end()) {
+    throw std::out_of_range("No value found for year " + year);
+  }
+
+  return it->second;
+}
 
 
 /*
@@ -155,6 +175,9 @@ Measure::Measure(std::string codename, const std::string &label) {
 
     measure.setValue(1999, 12345678.9);
 */
+void Measure::setValue(size_t year, double val) {
+  values[year] = val;
+}
 
 
 /*
@@ -175,7 +198,9 @@ Measure::Measure(std::string codename, const std::string &label) {
     measure.setValue(1999, 12345678.9);
     auto size = measure.size(); // returns 1
 */
-
+size_t Measure::size() const noexcept {
+  return values.size();
+}
 
 /*
   TODO: Measure::getDifference()
@@ -194,6 +219,16 @@ Measure::Measure(std::string codename, const std::string &label) {
     measure.setValue(1999, 12345679.9);
     auto diff = measure.getDifference(); // returns 1.0
 */
+double Measure::getDifference() const noexcept{
+  if(size() <= 1) {
+    return 0;
+  }
+
+  double smallest = values.begin()->second;
+  double biggest = values.rbegin()->second;
+
+  return biggest - smallest;
+}
 
 
 /*
@@ -213,6 +248,16 @@ Measure::Measure(std::string codename, const std::string &label) {
     measure.setValue(2010, 12345679.9);
     auto diff = measure.getDifferenceAsPercentage();
 */
+double Measure::getDifferenceAsPercentage() const noexcept {
+  if(size() <= 1) {
+      return 0;
+    }
+
+  double smallest = values.begin()->second;
+  double biggest = values.rbegin()->second;
+
+  return (biggest - smallest) / biggest;
+}
 
 
 /*
@@ -231,6 +276,18 @@ Measure::Measure(std::string codename, const std::string &label) {
     measure.setValue(1999, 12345679.9);
     auto diff = measure.getDifference(); // returns 1
 */
+double Measure::getAverage() const noexcept {
+  if(size() == 0) {
+    return 0;
+  }
+
+  double sum = 0;
+  for(const auto& keyValuePair : values) {
+    sum+= keyValuePair.second;
+  }
+
+  return sum / size();
+}
 
 
 /*
@@ -288,3 +345,6 @@ Measure::Measure(std::string codename, const std::string &label) {
     otherwise
 */
 
+bool operator==(const Measure& lhs, const Measure& rhs) {
+  return (lhs.codename == rhs.codename) && (lhs.label == rhs.label) && (lhs.values == rhs.values);
+}

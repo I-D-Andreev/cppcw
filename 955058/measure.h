@@ -15,6 +15,7 @@
  */
 
 #include <string>
+#include <map>
 
 /*
   The Measure class contains a measure code, label, and a container for readings
@@ -25,7 +26,28 @@
   to overload.
 */
 class Measure {
-  Measure(std::string code, const std::string &label);
+
+private:
+  std::string codename;
+  std::string label;
+
+  // year -> recorded value
+  // use sorted map so that we can have the years in order
+  std::map<size_t, double> values;
+public:
+  Measure(std::string codename_, const std::string& label_);
+
+  std::string getCodeName() const noexcept;
+  std::string getLabel() const noexcept;
+  void setLabel(const std::string& newLabel);
+  double getValue(size_t year) const;
+  void setValue(size_t year, double val);
+  size_t size() const noexcept;
+  double getDifference() const noexcept;
+  double getDifferenceAsPercentage() const noexcept;
+  double getAverage() const noexcept;
+
+  friend bool operator==(const Measure& lhs, const Measure& rhs);
 };
 
 #endif // MEASURE_H_
