@@ -79,6 +79,11 @@ std::istream& InputFile::open(){
   }
 
   inputStream.open(getSource(), std::ifstream::in);
+
+  if(!inputStream){
+    throw std::runtime_error("InputFile::open: Failed to open file " + getSource());
+  }
+
   return inputStream;
 }
 
