@@ -30,6 +30,7 @@
 #include "datasets.h"
 #include "areas.h"
 #include "measure.h"
+#include "bethyw.h"
 
 /*
   An alias for the imported JSON parsing library.
@@ -73,6 +74,10 @@ Areas::Areas() {
     Area area(localAuthorityCode);
     data.setArea(localAuthorityCode, area);
 */
+void Areas::setArea(const std::string& localAuthorityCode, const Area& area) {
+  const std::string lowerCaseCode = helpers::stringToLower(localAuthorityCode);
+  areas[lowerCaseCode].combineArea(area);
+}
 
 
 /*
@@ -98,6 +103,17 @@ Areas::Areas() {
     ...
     Area area2 = areas.getArea("W06000023");
 */
+Area& Areas::getArea(const std::string& localAuthorityCode) {
+  const std::string lowerCaseCode = helpers::stringToLower(localAuthorityCode);
+
+  auto it = areas.find(lowerCaseCode);
+
+  if(it == areas.end()){
+    throw std::out_of_range("Area with code {" + localAuthorityCode + "} does not exist!");
+  }
+
+  return it->second;
+}
 
 
 /*
@@ -118,6 +134,9 @@ Areas::Areas() {
     
     auto size = areas.size(); // returns 1
 */
+size_t Areas::size() const noexcept {
+  return areas.size();
+}
 
 
 /*
@@ -175,8 +194,36 @@ void Areas::populateFromAuthorityCodeCSV(
     std::istream &is,
     const BethYw::SourceColumnMapping &cols,
     const StringFilterSet * const areasFilter) {
-  throw std::logic_error(
-    "Areas::populateFromAuthorityCodeCSV() has not been implemented!");
+  
+  // todo1: runtime error
+
+  // Copy the areas filter so that we can actually do 
+  // case-insensitive lookup.
+  StringFilterSet caseInsensitiveAreasFilter;
+  for(const std::string& filter : *areasFilter) {
+    caseInsensitiveAreasFilter.insert(helpers::stringToLower(filter));
+  }
+
+
+  std::string line;
+  std::getline(is, line);
+
+  auto elements = helpers::splitString(line, ',');
+
+  if(elements.size() > cols.size()){
+    throw std::out_of_range("The parsed files contains more columns than the mapping");
+  }
+
+  while(std::getline(is, line)){
+    elements = helpers::splitString(line, ',');
+    // check if size is 3
+
+    const std::string& code = helpers::stringToLower(elements[0]);
+    const std::string& nameEng = elements[1];
+    const std::string& nameCym = elements[2];
+
+  }
+
 }
 
 /*

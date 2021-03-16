@@ -22,6 +22,8 @@
 #include "area.h"
 #include "bethyw.h"
 
+
+Area::Area() : Area("") {}
 /*
   TODO: Area::Area(localAuthorityCode)
 
@@ -154,6 +156,16 @@ void Area::setName(const std::string& langCode, const std::string& name) {
     ...
     auto measure2 = area.getMeasure("pop");
 */
+Measure& Area::getMeasure(const std::string& measureCode) {
+  const std::string lowerCaseCode = helpers::stringToLower(measureCode);
+
+  auto it = measures.find(lowerCaseCode);
+  if(it == measures.end()) {
+    throw std::out_of_range("No measure found matching " + measureCode);
+  }
+
+  return it->second;
+}
 
 
 /*
@@ -188,6 +200,10 @@ void Area::setName(const std::string& langCode, const std::string& name) {
 
     area.setMeasure(codename, measure);
 */
+void Area::setMeasure(const std::string& measureCode, const Measure& measure) {
+  const std::string lowerCaseCode = helpers::stringToLower(measureCode);
+  measures[lowerCaseCode].combineMeasure(measure);
+}
 
 
 /*
@@ -213,6 +229,27 @@ void Area::setName(const std::string& langCode, const std::string& name) {
     area.setMeasure(code, measure);
     auto size = area.size();
 */
+size_t Area::size() const noexcept {
+    return measures.size();
+}
+
+/*
+  Combine this area with another one.
+  Overlapping values should be overriden,
+  while non-overlapping ones should be kept/added.
+*/
+void Area::combineArea(const Area& other) {
+  localAuthorityCode = other.localAuthorityCode;
+
+  for(const auto& keyValPair : other.names) {
+    names[keyValPair.first] = keyValPair.second;
+  }
+
+  for(const auto& keyValPair : other.measures) {
+    setMeasure(keyValPair.first, keyValPair.second);
+  }
+
+}
 
 
 /*
@@ -271,3 +308,8 @@ void Area::setName(const std::string& langCode, const std::string& name) {
 
     bool eq = area1 == area2;
 */
+bool operator==(const Area& lhs, const Area& rhs) {
+  // todo1: should localAuthority check be case insensitive
+  // names and measures saving is already lowercase
+  return (lhs.localAuthorityCode == rhs.localAuthorityCode) && (lhs.names == rhs.names) && (lhs.measures == rhs.measures);
+}

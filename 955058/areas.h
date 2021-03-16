@@ -30,6 +30,7 @@
 #include <string>
 #include <tuple>
 #include <unordered_set>
+#include <unordered_map>
 
 #include "datasets.h"
 #include "area.h"
@@ -52,7 +53,7 @@ using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
   AreasContainer to a valid Standard Library container of your choosing.
 */
 class Null { };
-using AreasContainer = Null;
+using AreasContainer = std::unordered_map<std::string, Area>;
 
 /*
   Areas is a class that stores all the data categorised by area. The 
@@ -69,8 +70,14 @@ using AreasContainer = Null;
   to overload.
 */
 class Areas {
+private:
+  AreasContainer areas;
 public:
   Areas();
+
+  size_t size() const noexcept;
+  Area& getArea(const std::string& localAuthorityCode);
+  void setArea(const std::string& localAuthorityCode, const Area& area);
   
   void populateFromAuthorityCodeCSV(
       std::istream& is,

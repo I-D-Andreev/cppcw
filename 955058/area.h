@@ -32,7 +32,7 @@
 */
 class Area {
 private:
-  const std::string localAuthorityCode;
+  std::string localAuthorityCode;
 
   // language code -> name in the specified language
   std::unordered_map<std::string, std::string> names;
@@ -40,10 +40,17 @@ private:
   // measure code -> Measure
   std::unordered_map<std::string, Measure> measures;
 public:
+  Area();
   Area(const std::string& localAuthorityCode_);
   std::string getLocalAuthorityCode() const;
   std::string getName(const std::string& langCode) const;
   void setName(const std::string& langCode, const std::string& name);
+  Measure& getMeasure(const std::string& measureCode);
+  void setMeasure(const std::string& measureCode, const Measure& measure);
+  size_t size() const noexcept;
+  void combineArea(const Area& other);
+
+  friend bool operator==(const Area& lhs, const Area& rhs);
 };
 
 #endif // AREA_H_
