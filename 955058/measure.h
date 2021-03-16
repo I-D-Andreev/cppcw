@@ -38,7 +38,7 @@ public:
   Measure();
   Measure(std::string codename_, const std::string& label_);
 
-  std::string getCodeName() const noexcept;
+  std::string getCodename() const noexcept;
   std::string getLabel() const noexcept;
   void setLabel(const std::string& newLabel);
   double getValue(size_t year) const;

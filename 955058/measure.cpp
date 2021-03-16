@@ -69,7 +69,7 @@ Measure::Measure(std::string codename_, const std::string& label_) :
     ...
     auto codename2 = measure.getCodename();
 */
-std::string Measure::getCodeName() const noexcept {
+std::string Measure::getCodename() const noexcept {
   return codename;
 }
 
