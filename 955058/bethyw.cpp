@@ -31,7 +31,6 @@
 
 #include "lib_cxxopts.hpp"
 
-#include "areas.h"
 #include "datasets.h"
 #include "bethyw.h"
 #include "input.h"
@@ -127,9 +126,10 @@ int BethYw::run(int argc, char *argv[]) {
   auto measuresFilter = BethYw::parseMeasuresArg(args);
   auto yearsFilter = BethYw::parseYearsArg(args);
 
-  // Areas data = Areas();
+  Areas data = Areas();
 
-  // BethYw::loadAreas(data, dir, areasFilter);
+  BethYw::loadAreas(data, dir, areasFilter);
+  
   //
   // BethYw::loadDatasets(data,
   //                      dir,
@@ -464,6 +464,13 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResul
 
     BethYw::loadAreas(areas, "data", BethYw::parseAreasArg(args));
 */
+void BethYw::loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter) {
+  const BethYw::InputFileSource& AREAS = InputFiles::AREAS;
+  std::string areasFilePath = dir + AREAS.FILE;
+  InputFile file { areasFilePath };
+  areas.populate(file.open(), BethYw::SourceDataType::AuthorityCodeCSV, AREAS.COLS);
+  // InputFiles::AREAS.FILE
+}
 
 
 /*

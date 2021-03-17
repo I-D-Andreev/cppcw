@@ -45,8 +45,7 @@ using json = nlohmann::json;
   @example
     Areas data = Areas();
 */
-Areas::Areas() {
-  throw std::logic_error("Areas::Areas() has not been implemented!");
+Areas::Areas() : areas() {
 }
 
 /*
@@ -109,7 +108,7 @@ Area& Areas::getArea(const std::string& localAuthorityCode) {
   auto it = areas.find(lowerCaseCode);
 
   if(it == areas.end()){
-    throw std::out_of_range("Area with code {" + localAuthorityCode + "} does not exist!");
+    throw std::out_of_range("No area found matching " + localAuthorityCode);
   }
 
   return it->second;
@@ -195,15 +194,19 @@ void Areas::populateFromAuthorityCodeCSV(
     const BethYw::SourceColumnMapping &cols,
     const StringFilterSet * const areasFilter) {
   
-  // todo1: runtime error
-
+  // todo1: check if we have to wrap errors  
   // Copy the areas filter so that we can actually do 
   // case-insensitive lookup.
   StringFilterSet caseInsensitiveAreasFilter;
-  for(const std::string& filter : *areasFilter) {
-    caseInsensitiveAreasFilter.insert(helpers::stringToLower(filter));
+
+  if(areasFilter != nullptr) {
+    for(const std::string& filter : *areasFilter) {
+      caseInsensitiveAreasFilter.insert(helpers::stringToLower(filter));
+    }
   }
 
+  const std::string LANG_CODE_ENG = "eng";
+  const std::string LANG_CODE_CYM = "cym";
 
   std::string line;
   std::getline(is, line);
@@ -215,15 +218,27 @@ void Areas::populateFromAuthorityCodeCSV(
   }
 
   while(std::getline(is, line)){
+    if(line.empty()){
+      continue;
+    }
+
     elements = helpers::splitString(line, ',');
-    // check if size is 3
+    if(elements.size() != 3){
+      throw std::runtime_error("Error parsing areas.csv. Three args per line expected.");
+    }
 
     const std::string& code = helpers::stringToLower(elements[0]);
     const std::string& nameEng = elements[1];
     const std::string& nameCym = elements[2];
 
-  }
+    if(caseInsensitiveAreasFilter.empty() || caseInsensitiveAreasFilter.count(code) > 0){
+      Area area = Area(code);
+      area.setName(LANG_CODE_ENG, nameEng);
+      area.setName(LANG_CODE_CYM, nameCym);
 
+      setArea(code, area);
+    }
+  }
 }
 
 /*
@@ -454,11 +469,13 @@ void Areas::populateFromAuthorityCodeCSV(
 void Areas::populate(std::istream &is,
                      const BethYw::SourceDataType &type,
                      const BethYw::SourceColumnMapping &cols) {
-  if (type == BethYw::AuthorityCodeCSV) {
-    populateFromAuthorityCodeCSV(is, cols);
-  } else {
-    throw std::runtime_error("Areas::populate: Unexpected data type");
-  }
+  // todo1: check if stream is in working order and has content
+  populate(is, type, cols, nullptr, nullptr, nullptr);
+  // if (type == BethYw::AuthorityCodeCSV) {
+  //   populateFromAuthorityCodeCSV(is, cols);
+  // } else {
+  //   throw std::runtime_error("Areas::populate: Unexpected data type");
+  // }
 }
 
 /*
@@ -551,7 +568,9 @@ void Areas::populate(
     const StringFilterSet * const measuresFilter,
     const YearFilterTuple * const yearsFilter)
      {
-  if (type == BethYw::AuthorityCodeCSV) {
+  // todo1: check if stream is in working order and has content
+
+  if (type == BethYw::SourceDataType::AuthorityCodeCSV) {
     populateFromAuthorityCodeCSV(is, cols, areasFilter);
   } else {
     throw std::runtime_error("Areas::populate: Unexpected data type");
@@ -744,4 +763,13 @@ std::string Areas::toJSON() const {
     std::cout << areas << std::end;
 */
 
+
+// todo1: remove | only used for testing
+std::vector<Area> Areas::getAreas() const {
+  std::vector<Area> res;
+  for(const auto& pair : areas){
+    res.push_back(pair.second);
+  }
+  return res;
+}
 

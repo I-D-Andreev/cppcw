@@ -94,12 +94,15 @@ public:
       std::istream& is,
       const BethYw::SourceDataType& type,
       const BethYw::SourceColumnMapping& cols,
-      const StringFilterSet * const areasFilter = nullptr,
+      const StringFilterSet * const areasFilter,
       const StringFilterSet * const measuresFilter = nullptr,
       const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
 
   std::string toJSON() const;
+
+  // todo1: remove | only used for testing
+  std::vector<Area> getAreas() const;
 };
 
 #endif // AREAS_H
