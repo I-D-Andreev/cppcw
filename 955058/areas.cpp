@@ -700,6 +700,13 @@ std::string Areas::toJSON() const {
     Areas areas();
     std::cout << areas << std::end;
 */
+std::ostream& operator<<(std::ostream& os, Areas& areas) {
+  for(auto& codeAreaPair : areas.areas) {
+    os << codeAreaPair.second << std::endl;
+  }
+
+  return os;
+}
 
 
 // todo1: remove | only used for testing

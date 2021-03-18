@@ -30,7 +30,7 @@
 #include <string>
 #include <tuple>
 #include <unordered_set>
-#include <unordered_map>
+#include <map>
 
 #include "datasets.h"
 #include "area.h"
@@ -53,7 +53,10 @@ using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
   AreasContainer to a valid Standard Library container of your choosing.
 */
 class Null { };
-using AreasContainer = std::unordered_map<std::string, Area>;
+
+// local authority code -> Area
+// Use normal map and keep the Areas sorted by code for easier printing
+using AreasContainer = std::map<std::string, Area>;
 
 /*
   Areas is a class that stores all the data categorised by area. The 
@@ -97,6 +100,8 @@ public:
       noexcept(false);
 
   std::string toJSON() const;
+
+  friend std::ostream& operator<<(std::ostream& os, Areas& areas);
 
   // todo1: remove | only used for testing
   std::vector<Area> getAreas() const;
