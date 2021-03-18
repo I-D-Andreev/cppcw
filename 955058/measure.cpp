@@ -20,6 +20,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <iomanip>
 
 #include "measure.h"
 #include "bethyw.h"
@@ -256,9 +257,8 @@ double Measure::getDifferenceAsPercentage() const noexcept {
     }
 
   double smallest = values.begin()->second;
-  double biggest = values.rbegin()->second;
 
-  return (biggest - smallest) / biggest;
+  return getDifference() / smallest * 100;
 }
 
 
@@ -308,6 +308,22 @@ void Measure::combineMeasure(const Measure& other) {
 
 
 /*
+    Returns a vector of measurement readings.
+    The first element of the pair is the measurement year, while the second is the reading itself.
+  */
+std::vector<std::pair<size_t, double>> Measure::getAllReadingsSorted() const {
+  std::vector<std::pair<size_t, double>> readings;
+
+  for (const auto& keyValPair : values) {
+    readings.push_back(keyValPair);
+  }
+
+  return readings;
+}
+
+
+
+/*
   TODO: operator<<(os, measure)
 
   Overload the << operator to print all of the Measure's imported data.
@@ -343,7 +359,51 @@ void Measure::combineMeasure(const Measure& other) {
     measure.setValue(1999, 12345678.9);
     std::cout << measure << std::end;
 */
+std::ostream& operator<< (std::ostream& os, const Measure& measure) {
+  const int DECIMAL_PRECISION = 6; // chars after decimal point
+  
+  // Number of characters per column. Initially, the measure 
+  // name "Average" (and "% Diff.") will take the most space at 7 chars.
+  const int INITIAL_COLUMN_SPACING = 7; 
+  const int SPACE_BETWEEN_COLUMNS = 1;
+  std::string spaceBetweenColumnsStr = std::string(SPACE_BETWEEN_COLUMNS, ' ');
 
+  os << measure.label << " (" << measure.codename << ")" << std::endl;
+
+  std::vector<std::pair<size_t, double>> readings = measure.getAllReadingsSorted();
+
+  // Check if any value will take more space than allocated
+  int columnSpacing = INITIAL_COLUMN_SPACING;
+  for(const auto& reading : readings) {
+    columnSpacing = std::max(columnSpacing, helpers::charsInDouble(reading.second, DECIMAL_PRECISION));
+  }
+
+  // Measure Names Row
+  for(const auto& reading : readings){
+    os << std::setw(columnSpacing) << reading.first;
+    os << spaceBetweenColumnsStr;
+  }
+
+  for(const auto& additionalName : {"Average", "Diff.", "% Diff."}){
+    os << std::setw(columnSpacing) << additionalName;
+    os << spaceBetweenColumnsStr;
+  }
+
+  os << std::endl;
+  // Measure Values Row
+  os << std::fixed;
+  for(const auto& reading : readings){
+    os << std::setw(columnSpacing) << std::setprecision(DECIMAL_PRECISION) << reading.second;
+    os << spaceBetweenColumnsStr;
+  }
+
+  for(const auto& additionalVal : {measure.getAverage(), measure.getDifference(), measure.getDifferenceAsPercentage()}) {
+    os << std::setw(columnSpacing) << std::setprecision(DECIMAL_PRECISION) << additionalVal;
+    os << spaceBetweenColumnsStr;
+  }
+
+  return os;
+}
 
 /*
   TODO: operator==(lhs, rhs)

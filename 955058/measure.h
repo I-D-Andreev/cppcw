@@ -16,6 +16,8 @@
 
 #include <string>
 #include <map>
+#include <sstream>
+#include <vector>
 
 /*
   The Measure class contains a measure code, label, and a container for readings
@@ -47,8 +49,11 @@ public:
   double getDifference() const noexcept;
   double getDifferenceAsPercentage() const noexcept;
   double getAverage() const noexcept;
+  
   void combineMeasure(const Measure& other);
+  std::vector<std::pair<size_t, double>> getAllReadingsSorted() const;
 
+  friend std::ostream& operator<< (std::ostream& os, const Measure& measure);
   friend bool operator==(const Measure& lhs, const Measure& rhs);
 };
 
