@@ -18,6 +18,9 @@
 
 #include <string>
 #include <unordered_map>
+#include <map>
+#include <sstream>
+#include <vector>
 
 #include "measure.h"
 
@@ -38,7 +41,8 @@ private:
   std::unordered_map<std::string, std::string> names;
 
   // measure code -> Measure
-  std::unordered_map<std::string, Measure> measures;
+  // Order by measures codename as required for operator<< and for nicer printing.
+  std::map<std::string, Measure> measures;
 public:
   Area();
   Area(const std::string& localAuthorityCode_);
@@ -48,8 +52,19 @@ public:
   Measure& getMeasure(const std::string& measureCode);
   void setMeasure(const std::string& measureCode, const Measure& measure);
   size_t size() const noexcept;
+
+  
+  // get a name given a lang code or return empty if it doesn't exist
+  std::string getNameOrEmpty(const std::string& langCode) const;
+  
+  // get list of measures sorted by their codename
+  std::vector<std::string> getMeasureCodesSorted() const;
+  
+  // combine this Area with another one, updating the overlapping variables
+  // and adding/keeping non-overlapping ones
   void combineArea(const Area& other);
 
+  friend std::ostream& operator<<(std::ostream& os, Area& area);
   friend bool operator==(const Area& lhs, const Area& rhs);
 };
 

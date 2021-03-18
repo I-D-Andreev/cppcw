@@ -94,6 +94,19 @@ std::string Area::getName(const std::string& langCode) const {
   return it->second;
 }
 
+
+/*
+  Either get the name if it exists or return empty if it doesn't.
+*/
+std::string Area::getNameOrEmpty(const std::string& langCode) const {
+  try {
+    return getName(langCode);
+  }
+  catch(const std::out_of_range& ex) {
+    return std::string();
+  }
+}
+
 /*
   TODO: Area::setName(lang, name)
 
@@ -252,6 +265,17 @@ void Area::combineArea(const Area& other) {
 }
 
 
+std::vector<std::string> Area::getMeasureCodesSorted() const {
+  std::vector<std::string> measureCodes;
+  
+  for(const auto& keyValPair : measures) {
+    measureCodes.push_back(keyValPair.first);
+  }
+  
+  return measureCodes;
+}
+
+
 /*
   TODO: operator<<(os, area)
 
@@ -283,6 +307,44 @@ void Area::combineArea(const Area& other) {
     area.setName("eng", "Powys");
     std::cout << area << std::endl;
 */
+std::ostream& operator<<(std::ostream& os, Area& area) {
+  std::string nameEng = area.getNameOrEmpty("eng");
+  std::string nameCym = area.getNameOrEmpty("cym");
+  std::string prettyCode = "(" + area.getLocalAuthorityCode() + ")";
+
+  int namesCount = static_cast<int>(!nameEng.empty()) + static_cast<int>(!nameCym.empty());
+
+  switch (namesCount)
+  {
+  case 2:
+    os << nameEng << " / " << nameCym << " " << prettyCode << std::endl;
+    break;
+  
+  case 1:
+    // one of them is empty so we can concatenate
+    os << nameEng << nameCym << " " << prettyCode << std::endl;
+    break;
+  
+  case 0:
+  default:
+    os << "Unnamed " << prettyCode << std::endl;
+    break;
+  }
+
+
+  if (area.size() == 0) {
+    os << "<no measures>" << std::endl;
+    return os;
+  }
+
+
+  std::vector<std::string> measureCodes = area.getMeasureCodesSorted();
+  for(const std::string& code : measureCodes) {
+    os << area.getMeasure(code) << std::endl;
+  }
+
+  return os;
+}
 
 
 /*
