@@ -414,69 +414,7 @@ void Areas::populateFromAuthorityCodeCSV(
 */
 
 
-/*
-  TODO: Areas::populate(is, type, cols)
 
-  Parse data from an standard input stream `is`, that has data of a particular
-  `type`, and with a given column mapping in `cols`.
-
-  This function should look at the `type` and hand off to one of the three 
-  functions populate………() functions.
-
-  The function must check if the stream is in working order and has content.
-
-  @param is
-    The input stream from InputSource
-
-  @param type
-    A value from the BethYw::SourceDataType enum which states the underlying
-    data file structure
-
-  @param cols
-    A map of the enum BethyYw::SourceColumnMapping (see datasets.h) to strings
-    that give the column header in the CSV file
-
-  @return
-    void
-
-  @throws 
-    std::runtime_error if a parsing error occurs (e.g. due to a malformed file),
-    the stream is not open/valid/has any contents, or an unexpected type
-    is passed in.
-    std::out_of_range if there are not enough columns in cols
-
-  @see
-    See datasets.h for details of the values variable type can have
-
-  @see
-    See datasets.h for details of how the variable cols is organised
-
-  @see
-    See bethyw.cpp for details of how the variable areasFilter is created
-
-  @example
-    InputFile input("data/popu1009.json");
-    auto is = input.open();
-
-    auto cols = InputFiles::DATASETS["popden"].COLS;
-
-    Areas data = Areas();
-    areas.populate(
-      is,
-      DataType::WelshStatsJSON,
-      cols);
-*/
-void Areas::populate(std::istream &is,
-                     const BethYw::SourceDataType &type,
-                     const BethYw::SourceColumnMapping &cols) {
-  // todo1: check if stream is in working order and has content
-  populate(is, type, cols, nullptr, nullptr, nullptr);
-  // if (type == BethYw::AuthorityCodeCSV) {
-  //   populateFromAuthorityCodeCSV(is, cols);
-  // } else {
-  //   throw std::runtime_error("Areas::populate: Unexpected data type");
-  // }
-}
 
 /*
   TODO: Areas::populate(is,
