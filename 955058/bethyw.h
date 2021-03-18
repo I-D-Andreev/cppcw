@@ -102,6 +102,9 @@ namespace helpers {
 
   // Convert a string to a number.
   int stringToNumber(const std::string& numStr);
+
+  // The number of characters a double will take when printed to the screen.
+  int charsInDouble(double num, size_t decimalPrecision);
 }
 
 #endif // BETHYW_H_

@@ -28,6 +28,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
+#include <sstream>
+#include <iomanip>
+
 
 #include "lib_cxxopts.hpp"
 
@@ -584,4 +587,12 @@ bool helpers::isWord(const std::string& wordStr) {
   }
 
   return true;
+}
+
+
+int helpers::charsInDouble(double num, size_t decimalPrecision) {
+  std::stringstream ss;
+  ss << std::fixed;
+  ss << std::setprecision(decimalPrecision) << num;
+  return ss.str().size();
 }
