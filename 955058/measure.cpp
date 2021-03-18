@@ -365,7 +365,7 @@ std::ostream& operator<< (std::ostream& os, const Measure& measure) {
   // Number of characters per column. Initially, the measure 
   // name "Average" (and "% Diff.") will take the most space at 7 chars.
   const int INITIAL_COLUMN_SPACING = 7; 
-  const int SPACE_BETWEEN_COLUMNS = 1;
+  const int SPACE_BETWEEN_COLUMNS = 2;
   std::string spaceBetweenColumnsStr = std::string(SPACE_BETWEEN_COLUMNS, ' ');
 
   os << measure.label << " (" << measure.codename << ")" << std::endl;
