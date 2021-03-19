@@ -103,8 +103,6 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, Areas& areas);
 
-  // todo1: remove | only used for testing
-  std::vector<Area> getAreas() const;
 };
 
 #endif // AREAS_H

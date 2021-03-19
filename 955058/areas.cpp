@@ -707,14 +707,3 @@ std::ostream& operator<<(std::ostream& os, Areas& areas) {
 
   return os;
 }
-
-
-// todo1: remove | only used for testing
-std::vector<Area> Areas::getAreas() const {
-  std::vector<Area> res;
-  for(const auto& pair : areas){
-    res.push_back(pair.second);
-  }
-  return res;
-}
-
