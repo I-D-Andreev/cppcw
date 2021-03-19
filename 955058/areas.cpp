@@ -496,35 +496,12 @@ void Areas::populateFromAuthorityByYearCSV(
     }
 
 
-    // We will not need to delete the data in the pointer (i.e. call delete), as the stack object
-    // that this pointer will point to will be removed automatically.
-    Area* area;
+    Area area {areaCode};
     
-    
-    // todo1!!: Maybe don't create an area if it doesn't exist in welsh stats json
-    // todo1!!: Maybe make a new measure object and use setMeasure instead
-    // todo1!!: or create new Area object and a new measure object and do setArea 
-    try {
-      area = &getArea(areaCode);
-    }
-    catch(const std::out_of_range& ex) {
-      // Area does not exist, so we create it.
-      setArea(areaCode, Area(areaCode));
-      area = &getArea(areaCode);
-    }
-
     std::string measureCode = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE);
     std::string measureLabel = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME);
-    // Same as with Area above; we will not need to delete the data the pointer points to.
-    Measure* measure;
-    try {
-      measure = &(area->getMeasure(measureCode));
-    }
-    catch(const std::out_of_range& ex) {
-      area->setMeasure(measureCode, Measure(measureCode, measureLabel));
-      measure = &(area->getMeasure(measureCode));
-    }
-
+    Measure measure {measureCode, measureLabel};
+    
     // Parse the values on the line
     // years in years vector start from 0
     // values in the lineElements vector start from 1 as the authority code is the 0th element
@@ -538,7 +515,7 @@ void Areas::populateFromAuthorityByYearCSV(
       if(::shouldIncludeYear(year, yearsFilter) && value != "") {
         try {
           double valueParsed = helpers::stringToFloatingPointNumber(value);
-          measure->setValue(year, valueParsed);
+          measure.setValue(year, valueParsed);
         }
         catch(const std::exception& ex) {
           // may throw std::invalid_argument or std::out_of_range, but
@@ -546,7 +523,10 @@ void Areas::populateFromAuthorityByYearCSV(
           throw std::runtime_error("Failed to parse measurement " + std::string(ex.what()));
         }
       }
-    }  
+    }
+
+    area.setMeasure(measureCode, measure);
+    setArea(areaCode, area);
   }
 }
 
