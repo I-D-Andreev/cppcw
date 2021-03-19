@@ -88,6 +88,14 @@ public:
       const StringFilterSet * const areas = nullptr)
       noexcept(false);
 
+  void populateFromAuthorityByYearCSV(
+      std::istream& is,
+      const BethYw::SourceColumnMapping& cols,
+      const StringFilterSet* const areasFilter,
+      const YearFilterTuple* const yearsFilter 
+  ) noexcept(false);
+
+
   /* !!! populate(is, type, cols) removes as per canvas discussion */ 
 
   void populate(

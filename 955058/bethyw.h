@@ -84,6 +84,18 @@ std::tuple<unsigned int, unsigned int> parseYearsArg(cxxopts::ParseResult& args)
   Load the areas.csv file.
 */
 void loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter);
+
+/*
+  Load the remaining datasets.
+*/
+void loadDatasets(Areas& areas,
+ const std::string& dir,
+ std::vector<BethYw::InputFileSource>& datasetsToImport,
+ const StringFilterSet& areasFilter,
+ const StringFilterSet& measuresFilter,
+ const YearFilterTuple& yearsFilter
+ ) noexcept;
+
 } // namespace BethYw
 
 
@@ -105,6 +117,9 @@ namespace helpers {
 
   // The number of characters a double will take when printed to the screen.
   int charsInDouble(double num, size_t decimalPrecision);
-}
+
+  // Convert a string to a floating point number
+  double stringToFloatingPointNumber(const std::string& numStr);
+} // namespace helpers
 
 #endif // BETHYW_H_

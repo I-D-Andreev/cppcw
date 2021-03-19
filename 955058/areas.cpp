@@ -32,6 +32,25 @@
 #include "measure.h"
 #include "bethyw.h"
 
+// Anonymous namespace for helper functions. Private to areas.cpp
+namespace {
+  bool shouldIncludeYear(unsigned int year, const YearFilterTuple* const yearsFilter) {
+    if (yearsFilter == nullptr) {
+      return true;
+    }
+
+    unsigned int year1 = std::get<0>(*yearsFilter);
+    unsigned int year2 = std::get<1>(*yearsFilter);
+
+    if (year1 == 0 || year2 == 0) {
+      return true;
+    }
+
+    return (year >= std::min(year1, year2) && year <= std::max(year1, year2));
+  }
+} // end of anonymous namespace
+
+
 /*
   An alias for the imported JSON parsing library.
 */
@@ -194,7 +213,8 @@ void Areas::populateFromAuthorityCodeCSV(
     const BethYw::SourceColumnMapping &cols,
     const StringFilterSet * const areasFilter) {
   
-  // todo1: check if we have to wrap errors  
+  // todo1: wrap errors
+
   // Copy the areas filter so that we can actually do 
   // case-insensitive lookup.
   StringFilterSet caseInsensitiveAreasFilter;
@@ -227,11 +247,11 @@ void Areas::populateFromAuthorityCodeCSV(
       throw std::runtime_error("Error parsing areas.csv. Three args per line expected.");
     }
 
-    const std::string& code = helpers::stringToLower(elements[0]);
+    const std::string& code = elements[0];
     const std::string& nameEng = elements[1];
     const std::string& nameCym = elements[2];
 
-    if(caseInsensitiveAreasFilter.empty() || caseInsensitiveAreasFilter.count(code) > 0){
+    if(caseInsensitiveAreasFilter.empty() || caseInsensitiveAreasFilter.count(helpers::stringToLower(code)) > 0){
       Area area = Area(code);
       area.setName(LANG_CODE_ENG, nameEng);
       area.setName(LANG_CODE_CYM, nameCym);
@@ -413,7 +433,122 @@ void Areas::populateFromAuthorityCodeCSV(
     std::out_of_range if there are not enough columns in cols
 */
 
+void Areas::populateFromAuthorityByYearCSV(
+  std::istream& is,
+  const BethYw::SourceColumnMapping& cols,
+  const StringFilterSet* const areasFilter,
+  const YearFilterTuple* const yearsFilter 
+  ) {
+  
+  // copy the case-sensitive filter and convert it to lowercase
+  // as our input args should be case-insensitive
+  StringFilterSet areasFilterLowercase;
+  std::vector <int> years;
 
+  if (areasFilter != nullptr) {
+    for(const auto& areaFilter : *areasFilter) {
+      areasFilterLowercase.insert(helpers::stringToLower(areaFilter));
+    }
+  }
+
+  // A single line in the file.
+  std::string line;
+
+  // The elements of each line, when separated by ','
+  std::vector <std::string> lineElements;
+
+
+  // Parse first line
+  std::getline(is, line);
+  lineElements = helpers::splitString(line, ',');
+
+  if (lineElements.size() <= 2) {
+    throw std::runtime_error("Expected AuthorityCode and at least one year");
+  }
+
+  for(size_t i=1; i<lineElements.size(); i++) {
+    try {
+      int year = helpers::stringToNumber(lineElements[i]);
+      years.push_back(year);
+    }
+    catch(const std::exception& ex) {
+      // may throw std::invalid_argument or std::out_of_range, but
+      // in both cases we will just rethrow, so catch a general type exception 
+      throw std::runtime_error("Failed to parse year " + std::string(ex.what()));
+    }
+  }
+
+
+  // parse lines 2nd to last
+  while (std::getline(is, line)) {
+    lineElements = helpers::splitString(line, ',');
+
+    if(lineElements.size() <= 2){
+      // disregard lines with only authority code or empty lines
+      continue;
+    }
+
+    std::string areaCode = lineElements[0];
+    // todo3: probably around here will be code for task8 (names)
+    if (!areasFilterLowercase.empty() && areasFilterLowercase.count(helpers::stringToLower(areaCode)) == 0) {
+      // This area should not be imported.
+      continue;
+    }
+
+
+    // We will not need to delete the data in the pointer (i.e. call delete), as the stack object
+    // that this pointer will point to will be removed automatically.
+    Area* area;
+    
+    
+    // todo1!!: Maybe don't create an area if it doesn't exist in welsh stats json
+    // todo1!!: Maybe make a new measure object and use setMeasure instead
+    // todo1!!: or create new Area object and a new measure object and do setArea 
+    try {
+      area = &getArea(areaCode);
+    }
+    catch(const std::out_of_range& ex) {
+      // Area does not exist, so we create it.
+      setArea(areaCode, Area(areaCode));
+      area = &getArea(areaCode);
+    }
+
+    std::string measureCode = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE);
+    std::string measureLabel = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME);
+    // Same as with Area above; we will not need to delete the data the pointer points to.
+    Measure* measure;
+    try {
+      measure = &(area->getMeasure(measureCode));
+    }
+    catch(const std::out_of_range& ex) {
+      area->setMeasure(measureCode, Measure(measureCode, measureLabel));
+      measure = &(area->getMeasure(measureCode));
+    }
+
+    // Parse the values on the line
+    // years in years vector start from 0
+    // values in the lineElements vector start from 1 as the authority code is the 0th element
+    for(size_t yearsIndex=0, valuesIndex=1; 
+      yearsIndex < years.size() && valuesIndex < lineElements.size();
+      yearsIndex++, valuesIndex++) {
+    
+      int year = years[yearsIndex];
+      std::string value = lineElements[valuesIndex];
+      
+      if(::shouldIncludeYear(year, yearsFilter) && value != "") {
+        try {
+          double valueParsed = helpers::stringToFloatingPointNumber(value);
+          measure->setValue(year, valueParsed);
+        }
+        catch(const std::exception& ex) {
+          // may throw std::invalid_argument or std::out_of_range, but
+          // in both cases we will just rethrow, so catch a general type exception
+          throw std::runtime_error("Failed to parse measurement " + std::string(ex.what()));
+        }
+      }
+    }  
+  }
+}
 
 
 /*
@@ -510,7 +645,14 @@ void Areas::populate(
 
   if (type == BethYw::SourceDataType::AuthorityCodeCSV) {
     populateFromAuthorityCodeCSV(is, cols, areasFilter);
-  } else {
+  } 
+  else if (type == BethYw::SourceDataType::AuthorityByYearCSV) {
+    populateFromAuthorityByYearCSV(is, cols, areasFilter, yearsFilter);
+  }
+  else if (type == BethYw::SourceDataType::WelshStatsJSON) {
+    // todo1: implement
+  }
+  else {
     throw std::runtime_error("Areas::populate: Unexpected data type");
   }
 }
@@ -702,7 +844,7 @@ std::string Areas::toJSON() const {
 */
 std::ostream& operator<<(std::ostream& os, Areas& areas) {
   for(auto& codeAreaPair : areas.areas) {
-    os << codeAreaPair.second << std::endl;
+    os << codeAreaPair.second;
   }
 
   return os;

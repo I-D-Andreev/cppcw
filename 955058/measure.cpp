@@ -401,6 +401,7 @@ std::ostream& operator<< (std::ostream& os, const Measure& measure) {
     os << std::setw(columnSpacing) << std::setprecision(DECIMAL_PRECISION) << additionalVal;
     os << spaceBetweenColumnsStr;
   }
+  os << std::endl;
 
   return os;
 }

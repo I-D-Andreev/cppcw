@@ -133,13 +133,15 @@ int BethYw::run(int argc, char *argv[]) {
 
   BethYw::loadAreas(data, dir, areasFilter);
   
-  //
-  // BethYw::loadDatasets(data,
-  //                      dir,
-  //                      datasetsToImport,
-  //                      areasFilter,
-  //                      measuresFilter,
-  //                      yearsFilter);
+  
+  BethYw::loadDatasets(data,
+                       dir,
+                       datasetsToImport,
+                       areasFilter,
+                       measuresFilter,
+                       yearsFilter);
+  
+  std::cout << data << std::endl;
 
   // if (args.count("json")) {
   //   // The output as JSON
@@ -270,11 +272,15 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
   for(const std::string& code : inputDatasets){
     if(helpers::stringToLower(code) == BethYw::IMPORT_ALL_ARG){
       importAll = true;
-      continue;
+      break;
     }
+  }
 
-    if(datasets.count(code) == 0){
-        throw std::invalid_argument("No dataset matches key: " + code);
+  if(!importAll) {
+    for(const std::string& code : inputDatasets){
+      if(datasets.count(code) == 0){
+          throw std::invalid_argument("No dataset matches key: " + code);
+      }
     }
   }
 
@@ -472,7 +478,6 @@ void BethYw::loadAreas(Areas& areas, const std::string& dir, const std::unordere
   std::string areasFilePath = dir + AREAS.FILE;
   InputFile file { areasFilePath };
   areas.populate(file.open(), BethYw::SourceDataType::AuthorityCodeCSV, AREAS.COLS);
-  // InputFiles::AREAS.FILE
 }
 
 
@@ -530,7 +535,29 @@ void BethYw::loadAreas(Areas& areas, const std::string& dir, const std::unordere
       BethYw::parseMeasuresArg(args),
       BethYw::parseYearsArg(args));
 */
+void BethYw::loadDatasets(Areas& areas,
+ const std::string& dir,
+ std::vector<BethYw::InputFileSource>& datasetsToImport,
+ const StringFilterSet& areasFilter,
+ const StringFilterSet& measuresFilter,
+ const YearFilterTuple& yearsFilter
+ ) noexcept {
+   // todo1 : measuresFilter? - 
+   //? check when passing complete-datasets, otherwise pass to json?
+  try {
+    for(const InputFileSource& dataset : datasetsToImport) {
+      std::string filePath = dir + dataset.FILE;
+      InputFile file {filePath};
 
+      areas.populate(file.open(), dataset.PARSER, dataset.COLS, &areasFilter, &measuresFilter, &yearsFilter);
+    }
+  }
+  catch(const std::exception& ex) {
+    std::cerr << "Error importing dataset:" << std::endl;
+    std::cerr << ex.what();
+  }
+  
+}
 
 
 std::string helpers::stringToLower(std::string str) {
@@ -595,4 +622,9 @@ int helpers::charsInDouble(double num, size_t decimalPrecision) {
   ss << std::fixed;
   ss << std::setprecision(decimalPrecision) << num;
   return ss.str().size();
+}
+
+
+double helpers::stringToFloatingPointNumber(const std::string& numStr) {
+  return std::stod(numStr);
 }
