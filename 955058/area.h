@@ -56,7 +56,7 @@ public:
   
   // get a name given a lang code or return empty if it doesn't exist
   std::string getNameOrEmpty(const std::string& langCode) const;
-  
+
   // get list of measures sorted by their codename
   std::vector<std::string> getMeasureCodesSorted() const;
   

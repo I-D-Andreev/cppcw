@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <unordered_set>
+#include <typeinfo>
 
 #include "lib_json.hpp"
 
@@ -48,6 +49,23 @@ namespace {
 
     return (year >= std::min(year1, year2) && year <= std::max(year1, year2));
   }
+
+  // copy the filter into a lowercase set so that we can 
+  // check in constant time for case-insensitive filtering
+  StringFilterSet lowerCaseFilter(const StringFilterSet* const filter) {
+    StringFilterSet lowerCaseFilter;
+
+    if (filter == nullptr) {
+      return lowerCaseFilter;
+    }
+
+    for (const std::string& el : *filter) {
+      lowerCaseFilter.insert(helpers::stringToLower(el));
+    }
+
+    return lowerCaseFilter;
+  }
+
 } // end of anonymous namespace
 
 
@@ -94,7 +112,13 @@ Areas::Areas() : areas() {
 */
 void Areas::setArea(const std::string& localAuthorityCode, const Area& area) {
   const std::string lowerCaseCode = helpers::stringToLower(localAuthorityCode);
-  areas[lowerCaseCode].combineArea(area);
+  auto it = areas.find(lowerCaseCode);
+
+  if(it == areas.end()) {
+    areas[lowerCaseCode] = area;
+  } else {
+    it->second.combineArea(area);
+  }
 }
 
 
@@ -366,6 +390,87 @@ void Areas::populateFromAuthorityCodeCSV(
       &yearsFilter);
 */
 
+void Areas::populateFromWelshStatsJSON(
+  std::istream& is,
+  const BethYw::SourceColumnMapping& cols,
+  const StringFilterSet* const areasFilter,
+  const StringFilterSet* const measuresFilter,
+  const YearFilterTuple* const yearsFilter 
+) noexcept(false) {
+  using SC = BethYw::SourceColumn;
+
+  // If any of the .at() function calls fail they will throw out_of_range exception
+  // as is expected by the function, so we don't need to wrap in try-catch. 
+  const std::string& areaCodeIdx = cols.at(SC::AUTH_CODE);
+  const std::string& nameEngIdx = cols.at(SC::AUTH_NAME_ENG);
+  
+
+  bool singleMeasureCode = (cols.count(SC::SINGLE_MEASURE_CODE) > 0);
+
+  SC measureCodeEnum = cols.count(SC::MEASURE_CODE) > 0 ?
+      SC::MEASURE_CODE : SC::SINGLE_MEASURE_CODE;
+  const std::string& measureCodeIdx = cols.at(measureCodeEnum);
+
+  SC measureNameEnum = cols.count(SC::MEASURE_NAME) > 0 ?
+      SC::MEASURE_NAME : SC::SINGLE_MEASURE_NAME;
+  const std::string& measureNameIdx = cols.at(measureNameEnum);
+
+  const std::string& yearIdx = cols.at(SC::YEAR);
+  const std::string& valueIdx = cols.at(SC::VALUE);
+
+
+  // Copy the filters in lowercase so that we can do case-insensitive
+  // checks for areas and measures.
+  StringFilterSet areasFilterLowercase = ::lowerCaseFilter(areasFilter);
+  StringFilterSet measuresFilterLowercase = ::lowerCaseFilter(measuresFilter);
+
+
+  // todo2: do better?
+  try {
+    json json;
+    is >> json;
+
+    for(const auto& arrElement : json["value"].items()) {
+      const auto& obj = arrElement.value();
+
+      std::string areaCode = obj[areaCodeIdx];
+      if(!areasFilterLowercase.empty() && areasFilterLowercase.count(helpers::stringToLower(areaCode)) == 0) {
+        continue;
+      }
+      std::string nameEng = obj[nameEngIdx];
+
+      std::string measureCode = singleMeasureCode ? measureCodeIdx : obj[measureCodeIdx].get<std::string>();
+      std::string measureLabel = singleMeasureCode ? measureNameIdx : obj[measureNameIdx].get<std::string>();
+      if(!measuresFilterLowercase.empty() && measuresFilterLowercase.count(helpers::stringToLower(measureCode)) == 0) {
+        continue;
+      }
+
+
+      std::string yearData = obj[yearIdx];
+      int year = helpers::stringToNumber(yearData); 
+      if(!::shouldIncludeYear(year, yearsFilter)) {
+        continue;
+      }
+
+      // todo4: FIX!
+      double value = obj[valueIdx].get<double>();
+
+      // Not as slow as it seems.
+      // The "combining" logic only loops through the "other" (second)
+      // objects variables so it will only check 1 measure and 1 value.
+      Area area {areaCode};
+      area.setName("eng", nameEng);
+      Measure measure { measureCode, measureLabel};
+      measure.setValue(year, value);
+
+      area.setMeasure(measureCode, measure);
+      setArea(areaCode, area);
+    }
+  }
+  catch(const std::exception& ex) {
+    throw std::runtime_error("Failure parsing JSON file: " + std::string(ex.what()) + "\n");
+  }
+}
 
 /*
   TODO: Areas::populateFromAuthorityByYearCSV(is,
@@ -630,7 +735,7 @@ void Areas::populate(
     populateFromAuthorityByYearCSV(is, cols, areasFilter, yearsFilter);
   }
   else if (type == BethYw::SourceDataType::WelshStatsJSON) {
-    // todo1: implement
+    populateFromWelshStatsJSON(is, cols, areasFilter, measuresFilter, yearsFilter);
   }
   else {
     throw std::runtime_error("Areas::populate: Unexpected data type");
@@ -829,3 +934,17 @@ std::ostream& operator<<(std::ostream& os, Areas& areas) {
 
   return os;
 }
+
+// todo2: remove
+// Area& Areas::getOrCreateArea(const std::string& localAuthorityCode, bool& created) {
+//   try {
+//     Area& area = getArea(localAuthorityCode);
+//     created = false;
+//     return area;
+//   }
+//   catch(const std::out_of_range& ex) {
+//     setArea(localAuthorityCode, Area(localAuthorityCode));
+//     created = true;
+//     return getArea(localAuthorityCode);
+//   }
+// }

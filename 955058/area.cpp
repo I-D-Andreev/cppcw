@@ -215,7 +215,13 @@ Measure& Area::getMeasure(const std::string& measureCode) {
 */
 void Area::setMeasure(const std::string& measureCode, const Measure& measure) {
   const std::string lowerCaseCode = helpers::stringToLower(measureCode);
-  measures[lowerCaseCode].combineMeasure(measure);
+  auto it = measures.find(measureCode);
+
+  if(it == measures.end()) {
+    measures[lowerCaseCode] = measure;
+  } else {
+    it->second.combineMeasure(measure);
+  }
 }
 
 

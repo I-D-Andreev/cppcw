@@ -149,7 +149,7 @@ double Measure::getValue(size_t year) const {
   auto it = values.find(year);
 
   if(it == values.end()) {
-    throw std::out_of_range("No value found for year " + year);
+    throw std::out_of_range("No value found for year " + std::to_string(year));
   }
 
   return it->second;
@@ -297,7 +297,6 @@ double Measure::getAverage() const noexcept {
   while all non-overlapping ones will be included.
 */
 void Measure::combineMeasure(const Measure& other) {
-  // todo1: Is this correct?
   codename = other.codename;
   label = other.label;
 
