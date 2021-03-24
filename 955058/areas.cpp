@@ -66,6 +66,19 @@ namespace {
     return lowerCaseFilter;
   }
 
+  // check if a lowercase filter contains a certain code (area code/measure code)
+  // if the filter contains the code or is empty, return true
+  // otherwise return false
+  bool filterContains(const StringFilterSet& lowerCaseFilter, const std::string& code) {
+    std::string lowerCaseCode = helpers::stringToLower(code);
+
+    if(!lowerCaseFilter.empty() && lowerCaseFilter.count(lowerCaseCode) == 0) {
+      return false;
+    }
+
+    return true;
+  }
+
 } // end of anonymous namespace
 
 
@@ -236,18 +249,11 @@ void Areas::populateFromAuthorityCodeCSV(
     std::istream &is,
     const BethYw::SourceColumnMapping &cols,
     const StringFilterSet * const areasFilter) {
-  
   // todo1: wrap errors
 
   // Copy the areas filter so that we can actually do 
   // case-insensitive lookup.
-  StringFilterSet caseInsensitiveAreasFilter;
-
-  if(areasFilter != nullptr) {
-    for(const std::string& filter : *areasFilter) {
-      caseInsensitiveAreasFilter.insert(helpers::stringToLower(filter));
-    }
-  }
+  StringFilterSet caseInsensitiveAreasFilter = ::lowerCaseFilter(areasFilter);
 
   const std::string LANG_CODE_ENG = "eng";
   const std::string LANG_CODE_CYM = "cym";
@@ -275,7 +281,7 @@ void Areas::populateFromAuthorityCodeCSV(
     const std::string& nameEng = elements[1];
     const std::string& nameCym = elements[2];
 
-    if(caseInsensitiveAreasFilter.empty() || caseInsensitiveAreasFilter.count(helpers::stringToLower(code)) > 0){
+    if (::filterContains(caseInsensitiveAreasFilter, code)) {
       Area area = Area(code);
       area.setName(LANG_CODE_ENG, nameEng);
       area.setName(LANG_CODE_CYM, nameCym);
@@ -407,13 +413,13 @@ void Areas::populateFromWelshStatsJSON(
 
   bool singleMeasureCode = (cols.count(SC::SINGLE_MEASURE_CODE) > 0);
 
-  SC measureCodeEnum = cols.count(SC::MEASURE_CODE) > 0 ?
-      SC::MEASURE_CODE : SC::SINGLE_MEASURE_CODE;
-  const std::string& measureCodeIdx = cols.at(measureCodeEnum);
+  std::string measureCodeIdx = "";
+  std::string measureNameIdx = "";
 
-  SC measureNameEnum = cols.count(SC::MEASURE_NAME) > 0 ?
-      SC::MEASURE_NAME : SC::SINGLE_MEASURE_NAME;
-  const std::string& measureNameIdx = cols.at(measureNameEnum);
+  if (!singleMeasureCode) {
+    measureCodeIdx = cols.at(SC::MEASURE_CODE);
+    measureNameIdx = cols.at(SC::MEASURE_NAME);
+  }
 
   const std::string& yearIdx = cols.at(SC::YEAR);
   const std::string& valueIdx = cols.at(SC::VALUE);
@@ -425,7 +431,7 @@ void Areas::populateFromWelshStatsJSON(
   StringFilterSet measuresFilterLowercase = ::lowerCaseFilter(measuresFilter);
 
 
-  // todo2: do better?
+  // todo2: do better? error handling
   try {
     json json;
     is >> json;
@@ -434,14 +440,23 @@ void Areas::populateFromWelshStatsJSON(
       const auto& obj = arrElement.value();
 
       std::string areaCode = obj[areaCodeIdx];
-      if(!areasFilterLowercase.empty() && areasFilterLowercase.count(helpers::stringToLower(areaCode)) == 0) {
+      if(!::filterContains(areasFilterLowercase, areaCode)) {
         continue;
       }
       std::string nameEng = obj[nameEngIdx];
 
-      std::string measureCode = singleMeasureCode ? measureCodeIdx : obj[measureCodeIdx].get<std::string>();
-      std::string measureLabel = singleMeasureCode ? measureNameIdx : obj[measureNameIdx].get<std::string>();
-      if(!measuresFilterLowercase.empty() && measuresFilterLowercase.count(helpers::stringToLower(measureCode)) == 0) {
+      std::string measureCode;
+      std::string measureLabel;
+      
+      if (singleMeasureCode) {
+        measureCode = cols.at(SC::SINGLE_MEASURE_CODE);
+        measureLabel = cols.at(SC::SINGLE_MEASURE_NAME);
+      } else {
+        measureCode = obj[measureCodeIdx];
+        measureLabel = obj[measureNameIdx];
+      }
+      
+      if(!::filterContains(measuresFilterLowercase, measureCode)) {
         continue;
       }
 
@@ -549,27 +564,15 @@ void Areas::populateFromAuthorityByYearCSV(
   // Copy the case-sensitive filter and convert it to lowercase
   // as our input args should be case-insensitive.
   // This will allow us to do case-insensitive search. 
-  StringFilterSet measuresFilterLowercase;
-  StringFilterSet areasFilterLowercase;
+  StringFilterSet measuresFilterLowercase = ::lowerCaseFilter(measuresFilter);
+  StringFilterSet areasFilterLowercase = ::lowerCaseFilter(areasFilter);
   std::vector <int> years;
-
-  if (measuresFilter != nullptr) {
-    for (const auto& measureFilter : *measuresFilter) {
-      measuresFilterLowercase.insert(helpers::stringToLower(measureFilter));
-    }
-  }
 
   // firtly check that this measure/file should be imported at all
   const std::string& fileMeasure = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE);
-  if (!measuresFilterLowercase.empty() && measuresFilterLowercase.count(helpers::stringToLower(fileMeasure)) == 0) {
+  if (!::filterContains(measuresFilterLowercase, fileMeasure)) {
     return;
-  }
-
-  if (areasFilter != nullptr) {
-    for(const auto& areaFilter : *areasFilter) {
-      areasFilterLowercase.insert(helpers::stringToLower(areaFilter));
-    }
-  }
+  } 
 
   // a single line in the file.
   std::string line;
@@ -609,8 +612,9 @@ void Areas::populateFromAuthorityByYearCSV(
     }
 
     std::string areaCode = lineElements[0];
+
     // todo3: probably around here will be code for task8 (names)
-    if (!areasFilterLowercase.empty() && areasFilterLowercase.count(helpers::stringToLower(areaCode)) == 0) {
+    if(!::filterContains(areasFilterLowercase, areaCode)) {
       // This area should not be imported.
       continue;
     }
@@ -742,7 +746,6 @@ void Areas::populate(
     const YearFilterTuple * const yearsFilter)
      {
   // todo1: check if stream is in working order and has content
-
   if (type == BethYw::SourceDataType::AuthorityCodeCSV) {
     populateFromAuthorityCodeCSV(is, cols, areasFilter);
   } 
