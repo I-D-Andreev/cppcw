@@ -110,24 +110,38 @@ namespace {
     Exit code
 */
 int BethYw::run(int argc, char *argv[]) {
-  auto cxxopts = BethYw::cxxoptsSetup();
-  // todo1: catch exception
-  auto args = cxxopts.parse(argc, argv);
+  std::vector<BethYw::InputFileSource> datasetsToImport;
+  StringFilterSet areasFilter;
+  StringFilterSet measuresFilter;
+  YearFilterTuple yearsFilter;
+  std::string dir;
 
-  // Print the help usage if requested
-  if (args.count("help")) {
-    std::cerr << cxxopts.help() << std::endl;
-    return 0;
+  try {
+    auto cxxopts = BethYw::cxxoptsSetup();
+    auto args = cxxopts.parse(argc, argv);
+
+    // Print the help usage if requested
+    if (args.count("help")) {
+      std::cerr << cxxopts.help() << std::endl;
+      return 0;
+    }
+
+    // Parse data directory argument
+    dir = args["dir"].as<std::string>() + DIR_SEP;
+
+    // Parse other arguments and import data
+    datasetsToImport = BethYw::parseDatasetsArg(args);
+    areasFilter = BethYw::parseAreasArg(args);
+    measuresFilter = BethYw::parseMeasuresArg(args);
+    yearsFilter = BethYw::parseYearsArg(args);
   }
-
-  // Parse data directory argument
-  std::string dir = args["dir"].as<std::string>() + DIR_SEP;
-
-  // Parse other arguments and import data
-  auto datasetsToImport = BethYw::parseDatasetsArg(args);
-  auto areasFilter = BethYw::parseAreasArg(args);
-  auto measuresFilter = BethYw::parseMeasuresArg(args);
-  auto yearsFilter = BethYw::parseYearsArg(args);
+  catch(const cxxopts::OptionException& ex){
+    std::cerr << "Program argument error: " << std::endl;
+    std::cerr << ex.what() << std::endl;
+  }
+  catch(const std::exception& ex) {
+    std::cerr << ex.what() << std::endl;
+  }
 
   Areas data = Areas();
 
@@ -473,11 +487,18 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResul
 
     BethYw::loadAreas(areas, "data", BethYw::parseAreasArg(args));
 */
-void BethYw::loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter) {
+void BethYw::loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter) noexcept {
   const BethYw::InputFileSource& AREAS = InputFiles::AREAS;
   std::string areasFilePath = dir + AREAS.FILE;
   InputFile file { areasFilePath };
-  areas.populate(file.open(), BethYw::SourceDataType::AuthorityCodeCSV, AREAS.COLS, &areasFilter);
+  
+  try {
+    areas.populate(file.open(), BethYw::SourceDataType::AuthorityCodeCSV, AREAS.COLS, &areasFilter);
+  }
+  catch(const std::exception& ex) {
+    std::cerr << "Error importing areas: " << std::endl;
+    std::cerr << ex.what() << std::endl;
+  }
 }
 
 
@@ -553,9 +574,8 @@ void BethYw::loadDatasets(Areas& areas,
   }
   catch(const std::exception& ex) {
     std::cerr << "Error importing dataset:" << std::endl;
-    std::cerr << ex.what();
+    std::cerr << ex.what() << std::endl;
   }
-  
 }
 
 
