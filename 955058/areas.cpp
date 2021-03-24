@@ -860,7 +860,7 @@ std::string Areas::toJSON() const {
     j[keyValPair.second.getLocalAuthorityCode()] = keyValPair.second.toJSON();
   }
   
-  return j.dump(3);
+  return j.dump(/*3*/);
 }
 
 /*
