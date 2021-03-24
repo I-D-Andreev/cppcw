@@ -381,3 +381,23 @@ bool operator==(const Area& lhs, const Area& rhs) {
   // names and measures saving is already lowercase
   return (lhs.localAuthorityCode == rhs.localAuthorityCode) && (lhs.names == rhs.names) && (lhs.measures == rhs.measures);
 }
+
+
+json Area::toJSON() const {
+  json j;
+  json measuresJson;
+  json namesJson;
+
+  for (const auto& keyValPair : names) {
+    namesJson[keyValPair.first] = keyValPair.second;
+  }
+
+  for (const auto& keyValPair : measures) {
+    measuresJson[keyValPair.second.getCodename()] = keyValPair.second.toJSON();
+  }
+
+  j["measures"] = measuresJson;
+  j["names"] = namesJson;
+
+  return j;
+}

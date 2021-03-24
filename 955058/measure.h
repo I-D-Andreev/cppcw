@@ -19,6 +19,8 @@
 #include <sstream>
 #include <vector>
 
+#include "lib_json.hpp"
+
 /*
   The Measure class contains a measure code, label, and a container for readings
   from across a number of years.
@@ -27,6 +29,9 @@
   or functions you implement here, and perhaps additional operators you may wish
   to overload.
 */
+
+using json = nlohmann::json;
+
 class Measure {
 
 private:
@@ -55,6 +60,8 @@ public:
 
   friend std::ostream& operator<< (std::ostream& os, const Measure& measure);
   friend bool operator==(const Measure& lhs, const Measure& rhs);
+
+  json toJSON() const;
 };
 
 #endif // MEASURE_H_

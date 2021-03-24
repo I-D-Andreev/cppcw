@@ -116,6 +116,7 @@ int BethYw::run(int argc, char *argv[]) {
   YearFilterTuple yearsFilter;
   std::string dir;
   Areas data = Areas();
+  bool hasJson;
 
 
   try {
@@ -130,6 +131,7 @@ int BethYw::run(int argc, char *argv[]) {
 
     // Parse data directory argument
     dir = args["dir"].as<std::string>() + DIR_SEP;
+    hasJson = static_cast<bool>(args.count("json"));
 
     // Parse other arguments and import data
     datasetsToImport = BethYw::parseDatasetsArg(args);
@@ -159,15 +161,13 @@ int BethYw::run(int argc, char *argv[]) {
                        measuresFilter,
                        yearsFilter);
   
-  std::cout << data << std::endl;
-
-  // if (args.count("json")) {
-  //   // The output as JSON
-  //   std::cout << data.toJSON() << std::endl;
-  // } else {
-  //   // The output as tables
-  //   // std::cout << data << std::endl;
-  // }
+  if (hasJson) {
+    // The output as JSON
+    std::cout << data.toJSON() << std::endl;
+  } else {
+    // The output as tables
+    std::cout << data << std::endl;
+  }
 
   return 0;
 }

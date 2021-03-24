@@ -22,7 +22,11 @@
 #include <sstream>
 #include <vector>
 
+#include "lib_json.hpp"
+
 #include "measure.h"
+
+using json = nlohmann::json;
 
 /*
   An Area object consists of a unique authority code, a container for names
@@ -38,7 +42,8 @@ private:
   std::string localAuthorityCode;
 
   // language code -> name in the specified language
-  std::unordered_map<std::string, std::string> names;
+  // keep ordered by lang code
+  std::map<std::string, std::string> names;
 
   // measure code -> Measure
   // Order by measures codename as required for operator<< and for nicer printing.
@@ -66,6 +71,8 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, Area& area);
   friend bool operator==(const Area& lhs, const Area& rhs);
+
+  json toJSON() const;
 };
 
 #endif // AREA_H_

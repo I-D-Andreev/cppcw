@@ -110,7 +110,7 @@ namespace helpers {
   bool isNumber(const std::string& numStr);
 
   // Check if a string contains only leters.
-  bool isWord(const::std::string& wordStr);
+  bool isWord(const std::string& wordStr);
 
   // Convert a string to a number.
   int stringToNumber(const std::string& numStr);

@@ -432,3 +432,11 @@ bool operator==(const Measure& lhs, const Measure& rhs) {
 }
 
 
+
+json Measure::toJSON() const {
+  json j;
+  for (const auto& keyValPair : values) {
+    j[std::to_string(keyValPair.first)] = keyValPair.second;
+  }
+  return j;
+}

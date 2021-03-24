@@ -851,8 +851,13 @@ void Areas::populate(
 */
 std::string Areas::toJSON() const {
   json j;
+  for(const auto& keyValPair : areas) {
+    // the key is lowercase, so take the area itself and then its codename to
+    // get the original area's code
+    j[keyValPair.second.getLocalAuthorityCode()] = keyValPair.second.toJSON();
+  }
   
-  return j.dump();
+  return j.dump(3);
 }
 
 /*
