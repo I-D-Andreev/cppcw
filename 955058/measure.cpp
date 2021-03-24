@@ -371,6 +371,12 @@ std::ostream& operator<< (std::ostream& os, const Measure& measure) {
 
   std::vector<std::pair<size_t, double>> readings = measure.getAllReadingsSorted();
 
+  if(readings.size() == 0) {
+    os << "<no data>" << std::endl;
+    return os;
+  }
+
+
   // Check if any value will take more space than allocated
   int columnSpacing = INITIAL_COLUMN_SPACING;
   for(const auto& reading : readings) {
