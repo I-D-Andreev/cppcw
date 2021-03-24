@@ -396,8 +396,13 @@ json Area::toJSON() const {
     measuresJson[keyValPair.second.getCodename()] = keyValPair.second.toJSON();
   }
 
-  j["measures"] = measuresJson;
-  j["names"] = namesJson;
+  if (!measuresJson.empty()) {
+    j["measures"] = measuresJson;
+  }
+
+  if (!namesJson.empty()) {
+    j["names"] = namesJson;
+  }
 
   return j;
 }

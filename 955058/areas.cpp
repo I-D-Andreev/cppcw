@@ -850,6 +850,10 @@ void Areas::populate(
     std::cout << data.toJSON();
 */
 std::string Areas::toJSON() const {
+  if (areas.size() == 0) {
+    return "{}";
+  }
+
   json j;
   for(const auto& keyValPair : areas) {
     // the key is lowercase, so take the area itself and then its codename to
