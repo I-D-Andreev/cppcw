@@ -467,8 +467,18 @@ void Areas::populateFromWelshStatsJSON(
         continue;
       }
 
-      // todo4: FIX!
-      double value = obj[valueIdx].get<double>();
+      const auto& valueData = obj[valueIdx];
+      double value = 0;
+
+      if (valueData.is_string()) {
+        value = helpers::stringToFloatingPointNumber(valueData);
+      }
+      else if (valueData.is_number()) {
+        value = valueData.get<double>();
+      }
+      else {
+        throw std::runtime_error("populateFromWelshStatsJson: expected value data of string or numberical type but got " + std::string(valueData.type_name()));
+      }
 
       // Not as slow as it seems.
       // The "combining" logic only loops through the "other" (second)

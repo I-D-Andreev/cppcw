@@ -542,8 +542,7 @@ void BethYw::loadDatasets(Areas& areas,
  const StringFilterSet& measuresFilter,
  const YearFilterTuple& yearsFilter
  ) noexcept {
-   // todo1 : measuresFilter? - 
-   //? check when passing complete-datasets, otherwise pass to json?
+ 
   try {
     for(const InputFileSource& dataset : datasetsToImport) {
       std::string filePath = dir + dataset.FILE;
