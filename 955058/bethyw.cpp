@@ -477,7 +477,7 @@ void BethYw::loadAreas(Areas& areas, const std::string& dir, const std::unordere
   const BethYw::InputFileSource& AREAS = InputFiles::AREAS;
   std::string areasFilePath = dir + AREAS.FILE;
   InputFile file { areasFilePath };
-  areas.populate(file.open(), BethYw::SourceDataType::AuthorityCodeCSV, AREAS.COLS);
+  areas.populate(file.open(), BethYw::SourceDataType::AuthorityCodeCSV, AREAS.COLS, &areasFilter);
 }
 
 
