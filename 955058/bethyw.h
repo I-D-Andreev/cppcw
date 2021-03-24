@@ -83,7 +83,7 @@ std::tuple<unsigned int, unsigned int> parseYearsArg(cxxopts::ParseResult& args)
 /*
   Load the areas.csv file.
 */
-void loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter) noexcept;
+void loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter);
 
 /*
   Load the remaining datasets.
