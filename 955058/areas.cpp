@@ -249,8 +249,6 @@ void Areas::populateFromAuthorityCodeCSV(
     std::istream &is,
     const BethYw::SourceColumnMapping &cols,
     const StringFilterSet * const areasFilter) {
-  // todo1: wrap errors
-
   // Copy the areas filter so that we can actually do 
   // case-insensitive lookup.
   StringFilterSet caseInsensitiveAreasFilter = ::lowerCaseFilter(areasFilter);
@@ -258,36 +256,41 @@ void Areas::populateFromAuthorityCodeCSV(
   const std::string LANG_CODE_ENG = "eng";
   const std::string LANG_CODE_CYM = "cym";
 
-  std::string line;
-  std::getline(is, line);
+  try {
+    std::string line;
+    std::getline(is, line);
 
-  auto elements = helpers::splitString(line, ',');
+    auto elements = helpers::splitString(line, ',');
 
-  if(elements.size() > cols.size()){
-    throw std::out_of_range("The parsed files contains more columns than the mapping");
+    if(elements.size() > cols.size()){
+      throw std::out_of_range("The parsed files contains more columns than the mapping");
+    }
+
+    while(std::getline(is, line)){
+      if(line.empty()){
+        continue;
+      }
+
+      elements = helpers::splitString(line, ',');
+      if(elements.size() != 3){
+        throw std::runtime_error("Error parsing areas.csv. Three args per line expected.");
+      }
+
+      const std::string& code = elements[0];
+      const std::string& nameEng = elements[1];
+      const std::string& nameCym = elements[2];
+
+      if (::filterContains(caseInsensitiveAreasFilter, code)) {
+        Area area = Area(code);
+        area.setName(LANG_CODE_ENG, nameEng);
+        area.setName(LANG_CODE_CYM, nameCym);
+
+        setArea(code, area);
+      }
+    }
   }
-
-  while(std::getline(is, line)){
-    if(line.empty()){
-      continue;
-    }
-
-    elements = helpers::splitString(line, ',');
-    if(elements.size() != 3){
-      throw std::runtime_error("Error parsing areas.csv. Three args per line expected.");
-    }
-
-    const std::string& code = elements[0];
-    const std::string& nameEng = elements[1];
-    const std::string& nameCym = elements[2];
-
-    if (::filterContains(caseInsensitiveAreasFilter, code)) {
-      Area area = Area(code);
-      area.setName(LANG_CODE_ENG, nameEng);
-      area.setName(LANG_CODE_CYM, nameCym);
-
-      setArea(code, area);
-    }
+  catch(const std::exception& ex){
+    throw std::runtime_error("Error populating authority codes: " + std::string(ex.what()));
   }
 }
 
@@ -431,7 +434,6 @@ void Areas::populateFromWelshStatsJSON(
   StringFilterSet measuresFilterLowercase = ::lowerCaseFilter(measuresFilter);
 
 
-  // todo2: do better? error handling
   try {
     json json;
     is >> json;
@@ -482,7 +484,7 @@ void Areas::populateFromWelshStatsJSON(
 
       // Not as slow as it seems.
       // The "combining" logic only loops through the "other" (second)
-      // objects variables so it will only check 1 measure and 1 value.
+      // objects variables so it will only check 1 measure and its 1 value.
       Area area {areaCode};
       area.setName("eng", nameEng);
       Measure measure { measureCode, measureLabel};
@@ -755,7 +757,11 @@ void Areas::populate(
     const StringFilterSet * const measuresFilter,
     const YearFilterTuple * const yearsFilter)
      {
-  // todo1: check if stream is in working order and has content
+
+  if (!is) {
+    throw std::runtime_error("populate: Invalid data (file) stream");
+  }
+
   if (type == BethYw::SourceDataType::AuthorityCodeCSV) {
     populateFromAuthorityCodeCSV(is, cols, areasFilter);
   } 
