@@ -542,13 +542,28 @@ void Areas::populateFromAuthorityByYearCSV(
   std::istream& is,
   const BethYw::SourceColumnMapping& cols,
   const StringFilterSet* const areasFilter,
+  const StringFilterSet* const measuresFilter,
   const YearFilterTuple* const yearsFilter 
   ) {
   
-  // copy the case-sensitive filter and convert it to lowercase
-  // as our input args should be case-insensitive
+  // Copy the case-sensitive filter and convert it to lowercase
+  // as our input args should be case-insensitive.
+  // This will allow us to do case-insensitive search. 
+  StringFilterSet measuresFilterLowercase;
   StringFilterSet areasFilterLowercase;
   std::vector <int> years;
+
+  if (measuresFilter != nullptr) {
+    for (const auto& measureFilter : *measuresFilter) {
+      measuresFilterLowercase.insert(helpers::stringToLower(measureFilter));
+    }
+  }
+
+  // firtly check that this measure/file should be imported at all
+  const std::string& fileMeasure = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE);
+  if (!measuresFilterLowercase.empty() && measuresFilterLowercase.count(helpers::stringToLower(fileMeasure)) == 0) {
+    return;
+  }
 
   if (areasFilter != nullptr) {
     for(const auto& areaFilter : *areasFilter) {
@@ -556,14 +571,14 @@ void Areas::populateFromAuthorityByYearCSV(
     }
   }
 
-  // A single line in the file.
+  // a single line in the file.
   std::string line;
 
-  // The elements of each line, when separated by ','
+  // the elements of each line, when separated by ','
   std::vector <std::string> lineElements;
 
 
-  // Parse first line
+  // parse first line
   std::getline(is, line);
   lineElements = helpers::splitString(line, ',');
 
@@ -732,7 +747,7 @@ void Areas::populate(
     populateFromAuthorityCodeCSV(is, cols, areasFilter);
   } 
   else if (type == BethYw::SourceDataType::AuthorityByYearCSV) {
-    populateFromAuthorityByYearCSV(is, cols, areasFilter, yearsFilter);
+    populateFromAuthorityByYearCSV(is, cols, areasFilter, measuresFilter, yearsFilter);
   }
   else if (type == BethYw::SourceDataType::WelshStatsJSON) {
     populateFromWelshStatsJSON(is, cols, areasFilter, measuresFilter, yearsFilter);
@@ -929,7 +944,7 @@ std::string Areas::toJSON() const {
 */
 std::ostream& operator<<(std::ostream& os, Areas& areas) {
   for(auto& codeAreaPair : areas.areas) {
-    os << codeAreaPair.second;
+    os << codeAreaPair.second << std::endl;
   }
 
   return os;
