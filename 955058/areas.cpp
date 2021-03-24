@@ -78,7 +78,6 @@ namespace {
 
     return true;
   }
-
 } // end of anonymous namespace
 
 
@@ -977,17 +976,3 @@ std::ostream& operator<<(std::ostream& os, Areas& areas) {
 
   return os;
 }
-
-// todo2: remove
-// Area& Areas::getOrCreateArea(const std::string& localAuthorityCode, bool& created) {
-//   try {
-//     Area& area = getArea(localAuthorityCode);
-//     created = false;
-//     return area;
-//   }
-//   catch(const std::out_of_range& ex) {
-//     setArea(localAuthorityCode, Area(localAuthorityCode));
-//     created = true;
-//     return getArea(localAuthorityCode);
-//   }
-// }

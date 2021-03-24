@@ -115,18 +115,10 @@ public:
       const YearFilterTuple * const yearsFilter = nullptr)
       noexcept(false);
 
-  std::string toJSON() const;
 
   friend std::ostream& operator<<(std::ostream& os, Areas& areas);
 
-  /*
-    Search for area with given localAuthorityCode. If it exists, return a reference
-    to it or if it doesn't, create it.
-    The value of created will be set to signify whether Area creation took place. 
-  */
-  // todo2: remove
-  // Area& getOrCreateArea(const std::string& localAuthorityCode, bool& created);
-
+  std::string toJSON() const;
 };
 
 #endif // AREAS_H
