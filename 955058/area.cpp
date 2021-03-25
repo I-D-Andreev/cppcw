@@ -282,6 +282,16 @@ std::vector<std::string> Area::getMeasureCodesSorted() const {
 }
 
 
+std::vector<std::string> Area::getAllNames() const {
+  std::vector<std::string> allNames;
+
+  for (const auto& keyValPair : this->names) {
+    allNames.push_back(keyValPair.second);
+  }
+
+  return allNames;
+}
+
 /*
   TODO: operator<<(os, area)
 

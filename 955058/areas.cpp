@@ -78,6 +78,45 @@ namespace {
 
     return true;
   }
+
+  // check if the 'subString' is a substring of 'fullString' in a case-insensitive way
+  bool isSubstring(const std::string& subString, const std::string& fullString) {
+    std::string subStrLower = helpers::stringToLower(subString);
+    std::string fullStrLower = helpers::stringToLower(fullString);
+
+    return (fullStrLower.find(subStrLower) != std::string::npos);
+  }
+
+
+  // An area should be included if any of the values in the areasFilter
+  // is a subset of either the Area's code or any of its names
+  bool shouldIncludeArea(const std::string& areaCode, const std::vector<std::string>& areaNames, const StringFilterSet* const areasFilter) {
+    if (areasFilter == nullptr || areasFilter->empty()) {
+      return true;
+    }
+
+    std::vector<std::string> namesAndCode = areaNames;
+    namesAndCode.push_back(areaCode);
+
+
+    for (const std::string& partialValue : *areasFilter) {
+      for(const std::string& nameOrCode : namesAndCode) {
+        if(::isSubstring(partialValue, nameOrCode)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+
+  // An area should be included if any of the values in the areasFilter
+  // is a subset of either the Area's code or any of its names
+  bool shouldIncludeArea(const Area& area, const StringFilterSet* const areasFilter) {
+    return ::shouldIncludeArea(area.getLocalAuthorityCode(), area.getAllNames(), areasFilter);
+  }
+
 } // end of anonymous namespace
 
 
@@ -248,9 +287,6 @@ void Areas::populateFromAuthorityCodeCSV(
     std::istream &is,
     const BethYw::SourceColumnMapping &cols,
     const StringFilterSet * const areasFilter) {
-  // Copy the areas filter so that we can actually do 
-  // case-insensitive lookup.
-  StringFilterSet caseInsensitiveAreasFilter = ::lowerCaseFilter(areasFilter);
 
   const std::string LANG_CODE_ENG = "eng";
   const std::string LANG_CODE_CYM = "cym";
@@ -279,11 +315,10 @@ void Areas::populateFromAuthorityCodeCSV(
       const std::string& nameEng = elements[1];
       const std::string& nameCym = elements[2];
 
-      if (::filterContains(caseInsensitiveAreasFilter, code)) {
-        Area area = Area(code);
-        area.setName(LANG_CODE_ENG, nameEng);
-        area.setName(LANG_CODE_CYM, nameCym);
-
+      Area area = Area(code);
+      area.setName(LANG_CODE_ENG, nameEng);
+      area.setName(LANG_CODE_CYM, nameCym);
+      if (::shouldIncludeArea(area, areasFilter)) {
         setArea(code, area);
       }
     }
@@ -429,7 +464,6 @@ void Areas::populateFromWelshStatsJSON(
 
   // Copy the filters in lowercase so that we can do case-insensitive
   // checks for areas and measures.
-  StringFilterSet areasFilterLowercase = ::lowerCaseFilter(areasFilter);
   StringFilterSet measuresFilterLowercase = ::lowerCaseFilter(measuresFilter);
 
 
@@ -441,10 +475,20 @@ void Areas::populateFromWelshStatsJSON(
       const auto& obj = arrElement.value();
 
       std::string areaCode = obj[areaCodeIdx];
-      if(!::filterContains(areasFilterLowercase, areaCode)) {
+      std::string nameEng = obj[nameEngIdx];
+
+      bool shouldAddArea = false;
+
+      try {
+        shouldAddArea = ::shouldIncludeArea(getArea(areaCode), areasFilter);
+      }
+      catch(const std::out_of_range& ex) {
+        shouldAddArea = ::shouldIncludeArea(areaCode, {nameEng}, areasFilter);
+      }
+
+      if(!shouldAddArea) {
         continue;
       }
-      std::string nameEng = obj[nameEngIdx];
 
       std::string measureCode;
       std::string measureLabel;
@@ -576,7 +620,6 @@ void Areas::populateFromAuthorityByYearCSV(
   // as our input args should be case-insensitive.
   // This will allow us to do case-insensitive search. 
   StringFilterSet measuresFilterLowercase = ::lowerCaseFilter(measuresFilter);
-  StringFilterSet areasFilterLowercase = ::lowerCaseFilter(areasFilter);
   std::vector <int> years;
 
   // firtly check that this measure/file should be imported at all
@@ -624,9 +667,16 @@ void Areas::populateFromAuthorityByYearCSV(
 
     std::string areaCode = lineElements[0];
 
-    // todo3: probably around here will be code for task8 (names)
-    if(!::filterContains(areasFilterLowercase, areaCode)) {
-      // This area should not be imported.
+    bool shouldAddArea = false;
+    
+    try {
+      shouldAddArea = ::shouldIncludeArea(getArea(areaCode), areasFilter);
+    }
+    catch(const std::out_of_range& ex){
+      shouldAddArea = ::shouldIncludeArea(areaCode, {}, areasFilter);
+    }
+
+    if(!shouldAddArea) {
       continue;
     }
 
