@@ -99,7 +99,7 @@ void loadDatasets(Areas& areas,
 } // namespace BethYw
 
 
-namespace helpers {
+namespace string_operations {
   // Convert to lowerCase letters.
   std::string stringToLower(std::string str);
   
@@ -120,6 +120,6 @@ namespace helpers {
 
   // Convert a string to a floating point number
   double stringToFloatingPointNumber(const std::string& numStr);
-} // namespace helpers
+} // namespace string_operations
 
 #endif // BETHYW_H_

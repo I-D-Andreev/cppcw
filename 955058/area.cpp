@@ -83,7 +83,7 @@ std::string Area::getLocalAuthorityCode() const {
     auto name = area.getName(langCode);
 */
 std::string Area::getName(const std::string& langCode) const {
-  std::string lowerCaseCode = helpers::stringToLower(langCode);
+  std::string lowerCaseCode = string_operations::stringToLower(langCode);
 
   auto it = names.find(lowerCaseCode);
 
@@ -135,11 +135,11 @@ std::string Area::getNameOrEmpty(const std::string& langCode) const {
 void Area::setName(const std::string& langCode, const std::string& name) {
   constexpr int LANG_CODE_LENGTH_REQUIREMENT = 3;
 
-  if(!helpers::isWord(langCode) || langCode.length() != LANG_CODE_LENGTH_REQUIREMENT) {
+  if(!string_operations::isWord(langCode) || langCode.length() != LANG_CODE_LENGTH_REQUIREMENT) {
     throw std::invalid_argument("Area::setName: Language code must be three alphabetical letters only");
   }
 
-  std::string lowerCaseCode = helpers::stringToLower(langCode);
+  std::string lowerCaseCode = string_operations::stringToLower(langCode);
 
   names[lowerCaseCode] = name;
 }
@@ -170,7 +170,7 @@ void Area::setName(const std::string& langCode, const std::string& name) {
     auto measure2 = area.getMeasure("pop");
 */
 Measure& Area::getMeasure(const std::string& measureCode) {
-  const std::string lowerCaseCode = helpers::stringToLower(measureCode);
+  const std::string lowerCaseCode = string_operations::stringToLower(measureCode);
 
   auto it = measures.find(lowerCaseCode);
   if(it == measures.end()) {
@@ -214,7 +214,7 @@ Measure& Area::getMeasure(const std::string& measureCode) {
     area.setMeasure(codename, measure);
 */
 void Area::setMeasure(const std::string& measureCode, const Measure& measure) {
-  const std::string lowerCaseCode = helpers::stringToLower(measureCode);
+  const std::string lowerCaseCode = string_operations::stringToLower(measureCode);
   auto it = measures.find(measureCode);
 
   if(it == measures.end()) {

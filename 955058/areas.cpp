@@ -60,7 +60,7 @@ namespace {
     }
 
     for (const std::string& el : *filter) {
-      lowerCaseFilter.insert(helpers::stringToLower(el));
+      lowerCaseFilter.insert(string_operations::stringToLower(el));
     }
 
     return lowerCaseFilter;
@@ -70,7 +70,7 @@ namespace {
   // if the filter contains the code or is empty, return true
   // otherwise return false
   bool filterContains(const StringFilterSet& lowerCaseFilter, const std::string& code) {
-    std::string lowerCaseCode = helpers::stringToLower(code);
+    std::string lowerCaseCode = string_operations::stringToLower(code);
 
     if(!lowerCaseFilter.empty() && lowerCaseFilter.count(lowerCaseCode) == 0) {
       return false;
@@ -81,8 +81,8 @@ namespace {
 
   // check if the 'subString' is a substring of 'fullString' in a case-insensitive way
   bool isSubstring(const std::string& subString, const std::string& fullString) {
-    std::string subStrLower = helpers::stringToLower(subString);
-    std::string fullStrLower = helpers::stringToLower(fullString);
+    std::string subStrLower = string_operations::stringToLower(subString);
+    std::string fullStrLower = string_operations::stringToLower(fullString);
 
     return (fullStrLower.find(subStrLower) != std::string::npos);
   }
@@ -162,7 +162,7 @@ Areas::Areas() : areas() {
     data.setArea(localAuthorityCode, area);
 */
 void Areas::setArea(const std::string& localAuthorityCode, const Area& area) {
-  const std::string lowerCaseCode = helpers::stringToLower(localAuthorityCode);
+  const std::string lowerCaseCode = string_operations::stringToLower(localAuthorityCode);
   auto it = areas.find(lowerCaseCode);
 
   if(it == areas.end()) {
@@ -197,7 +197,7 @@ void Areas::setArea(const std::string& localAuthorityCode, const Area& area) {
     Area area2 = areas.getArea("W06000023");
 */
 Area& Areas::getArea(const std::string& localAuthorityCode) {
-  const std::string lowerCaseCode = helpers::stringToLower(localAuthorityCode);
+  const std::string lowerCaseCode = string_operations::stringToLower(localAuthorityCode);
 
   auto it = areas.find(lowerCaseCode);
 
@@ -295,7 +295,7 @@ void Areas::populateFromAuthorityCodeCSV(
     std::string line;
     std::getline(is, line);
 
-    auto elements = helpers::splitString(line, ',');
+    auto elements = string_operations::splitString(line, ',');
 
     if(elements.size() > cols.size()){
       throw std::out_of_range("The parsed files contains more columns than the mapping");
@@ -306,7 +306,7 @@ void Areas::populateFromAuthorityCodeCSV(
         continue;
       }
 
-      elements = helpers::splitString(line, ',');
+      elements = string_operations::splitString(line, ',');
       if(elements.size() != 3){
         throw std::runtime_error("Error parsing areas.csv. Three args per line expected.");
       }
@@ -507,7 +507,7 @@ void Areas::populateFromWelshStatsJSON(
 
 
       std::string yearData = obj[yearIdx];
-      int year = helpers::stringToNumber(yearData); 
+      int year = string_operations::stringToNumber(yearData); 
       if(!::shouldIncludeYear(year, yearsFilter)) {
         continue;
       }
@@ -516,7 +516,7 @@ void Areas::populateFromWelshStatsJSON(
       double value = 0;
 
       if (valueData.is_string()) {
-        value = helpers::stringToFloatingPointNumber(valueData);
+        value = string_operations::stringToFloatingPointNumber(valueData);
       }
       else if (valueData.is_number()) {
         value = valueData.get<double>();
@@ -637,7 +637,7 @@ void Areas::populateFromAuthorityByYearCSV(
 
   // parse first line
   std::getline(is, line);
-  lineElements = helpers::splitString(line, ',');
+  lineElements = string_operations::splitString(line, ',');
 
   if (lineElements.size() <= 2) {
     throw std::runtime_error("Expected AuthorityCode and at least one year");
@@ -645,7 +645,7 @@ void Areas::populateFromAuthorityByYearCSV(
 
   for(size_t i=1; i<lineElements.size(); i++) {
     try {
-      int year = helpers::stringToNumber(lineElements[i]);
+      int year = string_operations::stringToNumber(lineElements[i]);
       years.push_back(year);
     }
     catch(const std::exception& ex) {
@@ -658,7 +658,7 @@ void Areas::populateFromAuthorityByYearCSV(
 
   // parse lines 2nd to last
   while (std::getline(is, line)) {
-    lineElements = helpers::splitString(line, ',');
+    lineElements = string_operations::splitString(line, ',');
 
     if(lineElements.size() <= 2){
       // disregard lines with only authority code or empty lines
@@ -699,7 +699,7 @@ void Areas::populateFromAuthorityByYearCSV(
       
       if(::shouldIncludeYear(year, yearsFilter) && value != "") {
         try {
-          double valueParsed = helpers::stringToFloatingPointNumber(value);
+          double valueParsed = string_operations::stringToFloatingPointNumber(value);
           measure.setValue(year, valueParsed);
         }
         catch(const std::exception& ex) {

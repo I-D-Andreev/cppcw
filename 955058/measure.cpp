@@ -47,7 +47,7 @@ Measure::Measure() : Measure("", ""){}
     Measure measure(codename, label);
 */
 Measure::Measure(std::string codename_, const std::string& label_) :
-  codename(helpers::stringToLower(codename_)),
+  codename(string_operations::stringToLower(codename_)),
   label(label_),
   values(){}
 
@@ -380,7 +380,7 @@ std::ostream& operator<< (std::ostream& os, const Measure& measure) {
   // Check if any value will take more space than allocated
   int columnSpacing = INITIAL_COLUMN_SPACING;
   for(const auto& reading : readings) {
-    columnSpacing = std::max(columnSpacing, helpers::charsInDouble(reading.second, DECIMAL_PRECISION));
+    columnSpacing = std::max(columnSpacing, string_operations::charsInDouble(reading.second, DECIMAL_PRECISION));
   }
 
   // Measure Names Row

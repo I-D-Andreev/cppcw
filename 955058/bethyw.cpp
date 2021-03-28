@@ -80,7 +80,7 @@ namespace {
     const auto& inputArgs = args[argName].as<std::vector<std::string>>();
 
     for(const std::string& arg : inputArgs){
-      if(helpers::stringToLower(arg) == BethYw::IMPORT_ALL_ARG){
+      if(string_operations::stringToLower(arg) == BethYw::IMPORT_ALL_ARG){
         return StringFilterSet();
       }
 
@@ -281,7 +281,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
 
   // Check if we should import all datasets and whether they are all correct
   for(const std::string& code : inputDatasets){
-    if(helpers::stringToLower(code) == BethYw::IMPORT_ALL_ARG){
+    if(string_operations::stringToLower(code) == BethYw::IMPORT_ALL_ARG){
       importAll = true;
       break;
     }
@@ -411,7 +411,7 @@ YearFilterTuple BethYw::parseYearsArg(cxxopts::ParseResult& args) {
   const std::string& yearArg = args["years"].as<std::string>();
   const std::string invalidArgMessage = "Invalid input for years argument";
 
-  std::vector<std::string> years = helpers::splitString(yearArg, '-');
+  std::vector<std::string> years = string_operations::splitString(yearArg, '-');
 
   // Check that year input is correct
   
@@ -422,7 +422,7 @@ YearFilterTuple BethYw::parseYearsArg(cxxopts::ParseResult& args) {
 
   // All the years in the arg should be numbers
   for(const auto& year : years){
-    if(!helpers::isPositiveNumber(year)){
+    if(!string_operations::isPositiveNumber(year)){
       throw std::invalid_argument(invalidArgMessage);
     }
   }
@@ -444,7 +444,7 @@ YearFilterTuple BethYw::parseYearsArg(cxxopts::ParseResult& args) {
   // Due to our previous check, the year is guaranteed to be a non-negative number.
   std::vector<unsigned int> yearsAsNumbers;
   for(const auto& strYear: years) {
-    yearsAsNumbers.push_back(static_cast<unsigned int>(helpers::stringToNumber(strYear)));
+    yearsAsNumbers.push_back(static_cast<unsigned int>(string_operations::stringToNumber(strYear)));
   }
 
   return {yearsAsNumbers[0], yearsAsNumbers[yearsAsNumbers.size()-1]};
@@ -580,7 +580,7 @@ void BethYw::loadDatasets(Areas& areas,
 }
 
 
-std::string helpers::stringToLower(std::string str) {
+std::string string_operations::stringToLower(std::string str) {
   for (char& c : str){
     c = std::tolower(c);
   }
@@ -588,7 +588,7 @@ std::string helpers::stringToLower(std::string str) {
   return str;
 }
 
-std::vector<std::string> helpers::splitString(const std::string& str, char delimiter) {
+std::vector<std::string> string_operations::splitString(const std::string& str, char delimiter) {
   std::vector<std::string> stringParts;
   std::string temp;
 
@@ -611,7 +611,7 @@ std::vector<std::string> helpers::splitString(const std::string& str, char delim
 }
 
 
-bool helpers::isPositiveNumber(const std::string& numStr){
+bool string_operations::isPositiveNumber(const std::string& numStr){
   for(char c : numStr){
     if(!std::isdigit(c)){
       return false;
@@ -622,11 +622,11 @@ bool helpers::isPositiveNumber(const std::string& numStr){
 }
 
 
-int helpers::stringToNumber(const std::string& numStr) {
+int string_operations::stringToNumber(const std::string& numStr) {
   return std::stoi(numStr);
 }
 
-bool helpers::isWord(const std::string& wordStr) {
+bool string_operations::isWord(const std::string& wordStr) {
   for (char c : wordStr) {
     if(!isalpha(c)) {
       return false;
@@ -637,7 +637,7 @@ bool helpers::isWord(const std::string& wordStr) {
 }
 
 
-int helpers::charsInDouble(double num, size_t decimalPrecision) {
+int string_operations::charsInDouble(double num, size_t decimalPrecision) {
   std::stringstream ss;
   ss << std::fixed;
   ss << std::setprecision(decimalPrecision) << num;
@@ -645,6 +645,6 @@ int helpers::charsInDouble(double num, size_t decimalPrecision) {
 }
 
 
-double helpers::stringToFloatingPointNumber(const std::string& numStr) {
+double string_operations::stringToFloatingPointNumber(const std::string& numStr) {
   return std::stod(numStr);
 }
