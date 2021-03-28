@@ -110,15 +110,7 @@ namespace {
     Exit code
 */
 int BethYw::run(int argc, char *argv[]) {
-  std::vector<BethYw::InputFileSource> datasetsToImport;
-  StringFilterSet areasFilter;
-  StringFilterSet measuresFilter;
-  YearFilterTuple yearsFilter;
-  std::string dir;
-  Areas data = Areas();
-  bool hasJson;
-
-
+  
   try {
     auto cxxopts = BethYw::cxxoptsSetup();
     auto args = cxxopts.parse(argc, argv);
@@ -130,16 +122,33 @@ int BethYw::run(int argc, char *argv[]) {
     }
 
     // Parse data directory argument
-    dir = args["dir"].as<std::string>() + DIR_SEP;
-    hasJson = static_cast<bool>(args.count("json"));
-
+    std::string dir = args["dir"].as<std::string>() + DIR_SEP;
+    
     // Parse other arguments and import data
-    datasetsToImport = BethYw::parseDatasetsArg(args);
-    areasFilter = BethYw::parseAreasArg(args);
-    measuresFilter = BethYw::parseMeasuresArg(args);
-    yearsFilter = BethYw::parseYearsArg(args);
+    std::vector<BethYw::InputFileSource> datasetsToImport = BethYw::parseDatasetsArg(args);
+    StringFilterSet areasFilter = BethYw::parseAreasArg(args);
+    StringFilterSet measuresFilter = BethYw::parseMeasuresArg(args);
+    YearFilterTuple yearsFilter = BethYw::parseYearsArg(args);
+
+    Areas data = Areas();
 
     BethYw::loadAreas(data, dir, areasFilter);
+  
+
+    BethYw::loadDatasets(data,
+                        dir,
+                        datasetsToImport,
+                        areasFilter,
+                        measuresFilter,
+                        yearsFilter);
+    
+    if (args.count("json")) {
+      // The output as JSON
+      std::cout << data.toJSON() << std::endl;
+    } else {
+      // The output as tables
+      std::cout << data << std::endl;
+    }
   }
   catch(const cxxopts::OptionException& ex){
     // args exceptions
@@ -153,22 +162,6 @@ int BethYw::run(int argc, char *argv[]) {
     return 1;
   }
   
-  
-  BethYw::loadDatasets(data,
-                       dir,
-                       datasetsToImport,
-                       areasFilter,
-                       measuresFilter,
-                       yearsFilter);
-  
-  if (hasJson) {
-    // The output as JSON
-    std::cout << data.toJSON() << std::endl;
-  } else {
-    // The output as tables
-    std::cout << data << std::endl;
-  }
-
   return 0;
 }
 
@@ -491,12 +484,19 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResul
 
     BethYw::loadAreas(areas, "data", BethYw::parseAreasArg(args));
 */
-void BethYw::loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter) {
-  const BethYw::InputFileSource& AREAS = InputFiles::AREAS;
-  std::string areasFilePath = dir + AREAS.FILE;
-  InputFile file { areasFilePath };
-  
-  areas.populate(file.open(), BethYw::SourceDataType::AuthorityCodeCSV, AREAS.COLS, &areasFilter);
+void BethYw::loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter) noexcept {
+  try {
+    const BethYw::InputFileSource& AREAS = InputFiles::AREAS;
+    std::string areasFilePath = dir + AREAS.FILE;
+    InputFile file { areasFilePath };
+    
+    areas.populate(file.open(), BethYw::SourceDataType::AuthorityCodeCSV, AREAS.COLS, &areasFilter);
+  }
+  catch(const std::exception& ex){
+    std::cerr << "Error importing dataset:" << std::endl;
+    std::cerr << ex.what() << std::endl;
+    std::exit(1);
+  }
 }
 
 
@@ -573,6 +573,7 @@ void BethYw::loadDatasets(Areas& areas,
   catch(const std::exception& ex) {
     std::cerr << "Error importing dataset:" << std::endl;
     std::cerr << ex.what() << std::endl;
+    std::exit(1);
   }
 }
 
