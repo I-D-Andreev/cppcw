@@ -63,14 +63,14 @@ std::vector<BethYw::InputFileSource> parseDatasetsArg(
   Parse the areas argument and return a std::unordered_set of all the
   areas to import, or an empty set if all areas should be imported.
 */
-std::unordered_set<std::string> parseAreasArg(cxxopts::ParseResult& args);
+StringFilterSet parseAreasArg(cxxopts::ParseResult& args);
 
 
 /*
   Parse the measures argument and return a std::unordered_set of all the
   measures to import, or an empty set if all measures should be imported.
 */
-std::unordered_set<std::string> parseMeasuresArg(cxxopts::ParseResult& args);
+StringFilterSet parseMeasuresArg(cxxopts::ParseResult& args);
 
 
 /*
@@ -83,7 +83,7 @@ std::tuple<unsigned int, unsigned int> parseYearsArg(cxxopts::ParseResult& args)
 /*
   Load the areas.csv file.
 */
-void loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter) noexcept;
+void loadAreas(Areas& areas, const std::string& dir, const StringFilterSet& areasFilter) noexcept;
 
 /*
   Load the remaining datasets.

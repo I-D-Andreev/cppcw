@@ -65,23 +65,23 @@ namespace {
     //   message: Invalid input for area argument
   */
   // todo1: should this throw
-  std::unordered_set<std::string> parseStringArg(
+  StringFilterSet parseStringArg(
       const cxxopts::ParseResult& args,
       const std::string& argName){
     
     // The set to return. 
     // Does not deal with repetition when args have different letter case.
-    std::unordered_set<std::string> parsedArgs;
+    StringFilterSet parsedArgs;
 
     if(args.count(argName) == 0){
-      return std::unordered_set<std::string>();
+      return StringFilterSet();
     }
 
     const auto& inputArgs = args[argName].as<std::vector<std::string>>();
 
     for(const std::string& arg : inputArgs){
       if(helpers::stringToLower(arg) == BethYw::IMPORT_ALL_ARG){
-        return std::unordered_set<std::string>();
+        return StringFilterSet();
       }
 
       parsedArgs.insert(arg);
@@ -343,7 +343,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
     std::invalid_argument if the argument contains an invalid areas value with
     message: Invalid input for area argument
 */
-std::unordered_set<std::string> BethYw::parseAreasArg(
+StringFilterSet BethYw::parseAreasArg(
     cxxopts::ParseResult& args) {
   
   return ::parseStringArg(args, "areas");
@@ -375,7 +375,7 @@ std::unordered_set<std::string> BethYw::parseAreasArg(
     std::invalid_argument if the argument contains an invalid measures value
     with the message: Invalid input for measures argument
 */
-std::unordered_set<std::string> BethYw::parseMeasuresArg(
+StringFilterSet BethYw::parseMeasuresArg(
     cxxopts::ParseResult& args) {
   
   return ::parseStringArg(args, "measures");
@@ -484,7 +484,7 @@ std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResul
 
     BethYw::loadAreas(areas, "data", BethYw::parseAreasArg(args));
 */
-void BethYw::loadAreas(Areas& areas, const std::string& dir, const std::unordered_set<std::string>& areasFilter) noexcept {
+void BethYw::loadAreas(Areas& areas, const std::string& dir, const StringFilterSet& areasFilter) noexcept {
   try {
     const BethYw::InputFileSource& AREAS = InputFiles::AREAS;
     std::string areasFilePath = dir + AREAS.FILE;
