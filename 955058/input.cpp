@@ -83,7 +83,7 @@ InputFile::~InputFile() {
     InputFile input("data/areas.csv");
     input.open();
 */
-std::istream& InputFile::open() {
+std::istream& InputFile::open() noexcept(false) {
   if (inputStream.is_open()) {
     return inputStream;
   }

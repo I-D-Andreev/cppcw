@@ -52,7 +52,7 @@ public:
 
   void setLabel(const std::string& newLabel);
 
-  double getValue(size_t year) const;
+  double getValue(size_t year) const noexcept(false);
 
   void setValue(size_t year, double val);
 

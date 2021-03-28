@@ -169,7 +169,7 @@ Areas::Areas() : areas() {
     ...
     Area area2 = areas.getArea("W06000023");
 */
-Area& Areas::getArea(const std::string& localAuthorityCode) {
+Area& Areas::getArea(const std::string& localAuthorityCode) noexcept(false) {
   const std::string lowerCaseCode = string_operations::stringToLower(localAuthorityCode);
 
   auto it = areas.find(lowerCaseCode);

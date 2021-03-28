@@ -55,11 +55,11 @@ public:
 
   std::string getLocalAuthorityCode() const;
 
-  std::string getName(const std::string& langCode) const;
+  std::string getName(const std::string& langCode) const noexcept(false);
 
-  void setName(const std::string& langCode, const std::string& name);
+  void setName(const std::string& langCode, const std::string& name) noexcept(false);
 
-  Measure& getMeasure(const std::string& measureCode);
+  Measure& getMeasure(const std::string& measureCode) noexcept(false);
 
   void setMeasure(const std::string& measureCode, const Measure& measure);
 

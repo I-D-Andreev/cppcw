@@ -171,7 +171,7 @@ int BethYw::run(int argc, char* argv[]) {
     auto cxxopts = BethYw::cxxoptsSetup();
     auto args = cxxopts.parse(argc, argv);
 */
-cxxopts::Options BethYw::cxxoptsSetup() {
+cxxopts::Options BethYw::cxxoptsSetup() noexcept(false) {
   cxxopts::Options cxxopts(
           "bethyw",
           "Student ID: " + STUDENT_NUMBER + "\n\n"
@@ -245,7 +245,7 @@ cxxopts::Options BethYw::cxxoptsSetup() {
     auto datasetsToImport = BethYw::parseDatasetsArg(args);
  */
 std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
-        cxxopts::ParseResult& args) {
+        cxxopts::ParseResult& args) noexcept(false) {
 
   // Create the container for the return type
   std::vector<InputFileSource> datasetsToImport;
@@ -337,7 +337,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
     message: Invalid input for area argument
 */
 StringFilterSet BethYw::parseAreasArg(
-        cxxopts::ParseResult& args) {
+        cxxopts::ParseResult& args) noexcept(false) {
 
   return ::parseStringArg(args, "areas");
 }
@@ -369,7 +369,7 @@ StringFilterSet BethYw::parseAreasArg(
     with the message: Invalid input for measures argument
 */
 StringFilterSet BethYw::parseMeasuresArg(
-        cxxopts::ParseResult& args) {
+        cxxopts::ParseResult& args) noexcept(false) {
 
   return ::parseStringArg(args, "measures");
 }
@@ -399,7 +399,7 @@ StringFilterSet BethYw::parseMeasuresArg(
     the message: Invalid input for years argument
 */
 
-YearFilterTuple BethYw::parseYearsArg(cxxopts::ParseResult& args) {
+YearFilterTuple BethYw::parseYearsArg(cxxopts::ParseResult& args) noexcept(false) {
 
   const std::string& yearArg = args["years"].as<std::string>();
   const std::string invalidArgMessage = "Invalid input for years argument";

@@ -84,7 +84,7 @@ std::string Area::getLocalAuthorityCode() const {
     ...
     auto name = area.getName(langCode);
 */
-std::string Area::getName(const std::string& langCode) const {
+std::string Area::getName(const std::string& langCode) const noexcept(false) {
   std::string lowerCaseCode = string_operations::stringToLower(langCode);
 
   auto it = names.find(lowerCaseCode);
@@ -122,7 +122,7 @@ std::string Area::getName(const std::string& langCode) const {
     std::string langValueWelsh = "Powys";
     area.setName(langCodeWelsh, langValueWelsh);
 */
-void Area::setName(const std::string& langCode, const std::string& name) {
+void Area::setName(const std::string& langCode, const std::string& name) noexcept(false) {
   constexpr int LANG_CODE_LENGTH_REQUIREMENT = 3;
 
   if (!string_operations::isWord(langCode) || langCode.length() != LANG_CODE_LENGTH_REQUIREMENT) {
@@ -159,7 +159,7 @@ void Area::setName(const std::string& langCode, const std::string& name) {
     ...
     auto measure2 = area.getMeasure("pop");
 */
-Measure& Area::getMeasure(const std::string& measureCode) {
+Measure& Area::getMeasure(const std::string& measureCode) noexcept(false) {
   const std::string lowerCaseCode = string_operations::stringToLower(measureCode);
 
   auto it = measures.find(lowerCaseCode);

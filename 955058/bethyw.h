@@ -50,34 +50,34 @@ namespace BethYw {
   /*
    Create a cxxopts instance.
   */
-  cxxopts::Options cxxoptsSetup();
+  cxxopts::Options cxxoptsSetup() noexcept(false);
 
   /*
    Parse the datasets argument and return a std::vector of all the datasets
    to import. InputFileSource is declared in datasets.h.
   */
   std::vector<BethYw::InputFileSource> parseDatasetsArg(
-          cxxopts::ParseResult& args);
+          cxxopts::ParseResult& args) noexcept(false);
 
   /*
    Parse the areas argument and return a std::unordered_set of all the
    areas to import, or an empty set if all areas should be imported.
   */
-  StringFilterSet parseAreasArg(cxxopts::ParseResult& args);
+  StringFilterSet parseAreasArg(cxxopts::ParseResult& args) noexcept(false);
 
 
   /*
    Parse the measures argument and return a std::unordered_set of all the
    measures to import, or an empty set if all measures should be imported.
   */
-  StringFilterSet parseMeasuresArg(cxxopts::ParseResult& args);
+  StringFilterSet parseMeasuresArg(cxxopts::ParseResult& args) noexcept(false);
 
 
   /*
    Parse the year argument and return a tuple
    containing the start and end (inclusive) of the year range.
   */
-  YearFilterTuple parseYearsArg(cxxopts::ParseResult& args);
+  YearFilterTuple parseYearsArg(cxxopts::ParseResult& args) noexcept(false);
 
 
   /*

@@ -78,7 +78,7 @@ private:
 public:
   Areas();
 
-  Area& getArea(const std::string& localAuthorityCode);
+  Area& getArea(const std::string& localAuthorityCode) noexcept(false);
 
   void setArea(const std::string& localAuthorityCode, const Area& area);
 

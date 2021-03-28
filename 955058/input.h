@@ -45,7 +45,7 @@ protected:
 public:
   std::string getSource() const noexcept;
 
-  virtual std::istream& open() = 0;
+  virtual std::istream& open() noexcept(false) = 0;
 };
 
 /*
@@ -66,7 +66,7 @@ public:
 
   virtual ~InputFile();
 
-  virtual std::istream& open();
+  virtual std::istream& open() noexcept(false);
 };
 
 #endif // INPUT_H_

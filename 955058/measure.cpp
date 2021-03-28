@@ -146,7 +146,7 @@ void Measure::setLabel(const std::string& newLabel) {
     ...
     auto value = measure.getValue(1999); // returns 12345678.9
 */
-double Measure::getValue(size_t year) const {
+double Measure::getValue(size_t year) const noexcept(false) {
   auto it = values.find(year);
 
   if (it == values.end()) {
