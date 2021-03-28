@@ -38,7 +38,7 @@ class InputSource {
 protected:
   std::string source;
 
-  InputSource(const std::string& _source);
+  explicit InputSource(std::string _source);
 
   virtual ~InputSource() = default;
 
@@ -62,7 +62,7 @@ private:
   std::ifstream inputStream;
 
 public:
-  InputFile(const std::string& filePath);
+  explicit InputFile(std::string filePath);
 
   virtual ~InputFile();
 

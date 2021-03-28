@@ -51,7 +51,7 @@ private:
 public:
   Area();
 
-  Area(const std::string& localAuthorityCode_);
+  explicit Area(std::string localAuthorityCode_);
 
   std::string getLocalAuthorityCode() const;
 

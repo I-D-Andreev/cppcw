@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <string>
 #include <iomanip>
+#include <utility>
 
 #include "measure.h"
 #include "bethyw.h"
@@ -46,9 +47,9 @@ Measure::Measure() : Measure("", "") {}
     std::string label = "Population";
     Measure measure(codename, label);
 */
-Measure::Measure(std::string codename_, const std::string& label_) :
-        codename(string_operations::stringToLower(codename_)),
-        label(label_),
+Measure::Measure(std::string codename_, std::string label_) :
+        codename(string_operations::stringToLower(std::move(codename_))),
+        label(std::move(label_)),
         values() {}
 
 /*
