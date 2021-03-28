@@ -144,15 +144,7 @@ int BethYw::run(int argc, char* argv[]) {
       std::cout << data << std::endl;
     }
   }
-  catch (const cxxopts::OptionException& ex) {
-    // args exceptions
-    std::cerr << "Program argument error: " << std::endl;
-    std::cerr << ex.what() << std::endl;
-    return 1;
-  }
   catch (const std::exception& ex) {
-    // argument loading / runtime and general exceptions
-    std::cerr << "An error has occurred: " << std::endl;
     std::cerr << ex.what() << std::endl;
     return 1;
   }
