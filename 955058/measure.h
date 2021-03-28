@@ -44,7 +44,7 @@ private:
 public:
   Measure();
 
-  Measure(std::string codename_, const std::string& label_);
+  Measure(std::string codename_, std::string label_);
 
   std::string getCodename() const noexcept;
 

@@ -18,6 +18,7 @@
 */
 
 #include <stdexcept>
+#include <utility>
 
 #include "area.h"
 #include "bethyw.h"
@@ -36,8 +37,8 @@ Area::Area() : Area("") {}
   @example
     Area("W06000023");
 */
-Area::Area(const std::string& localAuthorityCode_) :
-        localAuthorityCode(localAuthorityCode_),
+Area::Area(std::string localAuthorityCode_) :
+        localAuthorityCode(std::move(localAuthorityCode_)),
         names(),
         measures() {}
 

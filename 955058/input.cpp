@@ -19,6 +19,8 @@
 
 #include "input.h"
 
+#include <utility>
+
 /*
   TODO: InputSource::InputSource(source)
 
@@ -27,7 +29,7 @@
   @param source
     A unique identifier for a source (i.e. the location).
 */
-InputSource::InputSource(const std::string& _source) : source(_source) {}
+InputSource::InputSource(std::string _source) : source(std::move(_source)) {}
 
 /*
   TODO: InputSource::getSource()
@@ -53,7 +55,7 @@ std::string InputSource::getSource() const noexcept {
   @example
     InputFile input("data/areas.csv");
 */
-InputFile::InputFile(const std::string& filePath) : InputSource(filePath), inputStream() {
+InputFile::InputFile(std::string filePath) : InputSource(std::move(filePath)), inputStream() {
 }
 
 

@@ -28,7 +28,6 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
-#include <sstream>
 #include <iomanip>
 
 
@@ -410,7 +409,7 @@ YearFilterTuple BethYw::parseYearsArg(cxxopts::ParseResult& args) {
   // Check that year input is correct
 
   // The arg should contain either 1 or 2 years
-  if (years.size() > 2 || years.size() < 1) {
+  if (years.size() > 2 || years.empty()) {
     throw std::invalid_argument(invalidArgMessage);
   }
 

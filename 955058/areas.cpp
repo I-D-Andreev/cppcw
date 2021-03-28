@@ -21,9 +21,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <string>
-#include <stdexcept>
 #include <tuple>
-#include <unordered_set>
 #include <typeinfo>
 
 #include "lib_json.hpp"
@@ -490,7 +488,7 @@ void Areas::populateFromWelshStatsJSON(
       std::string areaCode = obj[areaCodeIdx];
       std::string nameEng = obj[nameEngIdx];
 
-      bool shouldAddArea = false;
+      bool shouldAddArea;
 
       try {
         shouldAddArea = ::shouldIncludeArea(getArea(areaCode), areasFilter);
@@ -526,7 +524,7 @@ void Areas::populateFromWelshStatsJSON(
       }
 
       const auto& valueData = obj[valueIdx];
-      double value = 0;
+      double value;
 
       if (valueData.is_string()) {
         value = string_operations::stringToFloatingPointNumber(valueData);
@@ -680,7 +678,7 @@ void Areas::populateFromAuthorityByYearCSV(
 
     std::string areaCode = lineElements[0];
 
-    bool shouldAddArea = false;
+    bool shouldAddArea;
 
     try {
       shouldAddArea = ::shouldIncludeArea(getArea(areaCode), areasFilter);
@@ -710,7 +708,7 @@ void Areas::populateFromAuthorityByYearCSV(
       int year = years[yearsIndex];
       std::string value = lineElements[valuesIndex];
 
-      if (::shouldIncludeYear(year, yearsFilter) && value != "") {
+      if (::shouldIncludeYear(year, yearsFilter) && !value.empty()) {
         try {
           double valueParsed = string_operations::stringToFloatingPointNumber(value);
           measure.setValue(year, valueParsed);
