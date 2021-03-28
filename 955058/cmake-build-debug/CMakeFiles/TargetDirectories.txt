@@ -1,0 +1,3 @@
+/home/ivan/Desktop/main/programming/c++/cppcw/955058/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ivan/Desktop/main/programming/c++/cppcw/955058/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ivan/Desktop/main/programming/c++/cppcw/955058/cmake-build-debug/CMakeFiles/955058.dir
