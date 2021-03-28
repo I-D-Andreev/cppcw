@@ -24,6 +24,7 @@
 
 
 Area::Area() : Area("") {}
+
 /*
   TODO: Area::Area(localAuthorityCode)
 
@@ -35,10 +36,10 @@ Area::Area() : Area("") {}
   @example
     Area("W06000023");
 */
-Area::Area(const std::string& localAuthorityCode_) : 
-    localAuthorityCode(localAuthorityCode_),
-    names(),
-    measures() {}
+Area::Area(const std::string& localAuthorityCode_) :
+        localAuthorityCode(localAuthorityCode_),
+        names(),
+        measures() {}
 
 /*
   TODO: Area::getLocalAuthorityCode()
@@ -87,7 +88,7 @@ std::string Area::getName(const std::string& langCode) const {
 
   auto it = names.find(lowerCaseCode);
 
-  if(it == names.end()) {
+  if (it == names.end()) {
     throw std::out_of_range("A name in language {" + langCode + "} does not exist!");
   }
 
@@ -123,7 +124,7 @@ std::string Area::getName(const std::string& langCode) const {
 void Area::setName(const std::string& langCode, const std::string& name) {
   constexpr int LANG_CODE_LENGTH_REQUIREMENT = 3;
 
-  if(!string_operations::isWord(langCode) || langCode.length() != LANG_CODE_LENGTH_REQUIREMENT) {
+  if (!string_operations::isWord(langCode) || langCode.length() != LANG_CODE_LENGTH_REQUIREMENT) {
     throw std::invalid_argument("Area::setName: Language code must be three alphabetical letters only");
   }
 
@@ -161,7 +162,7 @@ Measure& Area::getMeasure(const std::string& measureCode) {
   const std::string lowerCaseCode = string_operations::stringToLower(measureCode);
 
   auto it = measures.find(lowerCaseCode);
-  if(it == measures.end()) {
+  if (it == measures.end()) {
     throw std::out_of_range("No measure found matching " + measureCode);
   }
 
@@ -205,7 +206,7 @@ void Area::setMeasure(const std::string& measureCode, const Measure& measure) {
   const std::string lowerCaseCode = string_operations::stringToLower(measureCode);
   auto it = measures.find(measureCode);
 
-  if(it == measures.end()) {
+  if (it == measures.end()) {
     measures[lowerCaseCode] = measure;
   } else {
     it->second.combineMeasure(measure);
@@ -237,7 +238,7 @@ void Area::setMeasure(const std::string& measureCode, const Measure& measure) {
     auto size = area.size();
 */
 size_t Area::size() const noexcept {
-    return measures.size();
+  return measures.size();
 }
 
 
@@ -245,7 +246,7 @@ std::string Area::getNameOrEmpty(const std::string& langCode) const {
   try {
     return getName(langCode);
   }
-  catch(const std::out_of_range& ex) {
+  catch (const std::out_of_range& ex) {
     return std::string();
   }
 }
@@ -253,11 +254,11 @@ std::string Area::getNameOrEmpty(const std::string& langCode) const {
 
 std::vector<std::string> Area::getMeasureCodesSorted() const {
   std::vector<std::string> measureCodes;
-  
-  for(const auto& keyValPair : measures) {
+
+  for (const auto& keyValPair : measures) {
     measureCodes.push_back(keyValPair.first);
   }
-  
+
   return measureCodes;
 }
 
@@ -281,11 +282,11 @@ std::vector<std::string> Area::getAllNames() const {
 void Area::combineArea(const Area& other) {
   localAuthorityCode = other.localAuthorityCode;
 
-  for(const auto& keyValPair : other.names) {
+  for (const auto& keyValPair : other.names) {
     names[keyValPair.first] = keyValPair.second;
   }
 
-  for(const auto& keyValPair : other.measures) {
+  for (const auto& keyValPair : other.measures) {
     setMeasure(keyValPair.first, keyValPair.second);
   }
 
@@ -330,21 +331,20 @@ std::ostream& operator<<(std::ostream& os, Area& area) {
 
   int namesCount = static_cast<int>(!nameEng.empty()) + static_cast<int>(!nameCym.empty());
 
-  switch (namesCount)
-  {
-  case 2:
-    os << nameEng << " / " << nameCym << " " << prettyCode << std::endl;
-    break;
-  
-  case 1:
-    // one of them is empty so we can concatenate
-    os << nameEng << nameCym << " " << prettyCode << std::endl;
-    break;
-  
-  case 0:
-  default:
-    os << "Unnamed " << prettyCode << std::endl;
-    break;
+  switch (namesCount) {
+    case 2:
+      os << nameEng << " / " << nameCym << " " << prettyCode << std::endl;
+      break;
+
+    case 1:
+      // one of them is empty so we can concatenate
+      os << nameEng << nameCym << " " << prettyCode << std::endl;
+      break;
+
+    case 0:
+    default:
+      os << "Unnamed " << prettyCode << std::endl;
+      break;
   }
 
 
@@ -355,7 +355,7 @@ std::ostream& operator<<(std::ostream& os, Area& area) {
 
 
   std::vector<std::string> measureCodes = area.getMeasureCodesSorted();
-  for(const std::string& code : measureCodes) {
+  for (const std::string& code : measureCodes) {
     os << area.getMeasure(code) << std::endl;
   }
 
@@ -387,7 +387,8 @@ std::ostream& operator<<(std::ostream& os, Area& area) {
     bool eq = area1 == area2;
 */
 bool operator==(const Area& lhs, const Area& rhs) {
-  return (lhs.localAuthorityCode == rhs.localAuthorityCode) && (lhs.names == rhs.names) && (lhs.measures == rhs.measures);
+  return (lhs.localAuthorityCode == rhs.localAuthorityCode) && (lhs.names == rhs.names) &&
+         (lhs.measures == rhs.measures);
 }
 
 

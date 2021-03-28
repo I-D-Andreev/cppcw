@@ -43,22 +43,33 @@ private:
   std::map<size_t, double> values;
 public:
   Measure();
+
   Measure(std::string codename_, const std::string& label_);
 
   std::string getCodename() const noexcept;
+
   std::string getLabel() const noexcept;
+
   void setLabel(const std::string& newLabel);
+
   double getValue(size_t year) const;
+
   void setValue(size_t year, double val);
+
   size_t size() const noexcept;
+
   double getDifference() const noexcept;
+
   double getDifferenceAsPercentage() const noexcept;
+
   double getAverage() const noexcept;
-  
+
   void combineMeasure(const Measure& other);
+
   std::vector<std::pair<size_t, double>> getAllReadingsSorted() const;
 
-  friend std::ostream& operator<< (std::ostream& os, const Measure& measure);
+  friend std::ostream& operator<<(std::ostream& os, const Measure& measure);
+
   friend bool operator==(const Measure& lhs, const Measure& rhs);
 
   json toJSON() const;

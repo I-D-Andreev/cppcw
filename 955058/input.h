@@ -37,11 +37,14 @@
 class InputSource {
 protected:
   std::string source;
+
   InputSource(const std::string& _source);
+
   virtual ~InputSource() = default;
 
 public:
   std::string getSource() const noexcept;
+
   virtual std::istream& open() = 0;
 };
 
@@ -60,7 +63,9 @@ private:
 
 public:
   InputFile(const std::string& filePath);
+
   virtual ~InputFile();
+
   virtual std::istream& open();
 };
 

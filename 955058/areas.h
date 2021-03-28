@@ -52,7 +52,7 @@ using YearFilterTuple = std::tuple<unsigned int, unsigned int>;
   TODO: you should remove the declaration of the Null class below, and set
   AreasContainer to a valid Standard Library container of your choosing.
 */
-class Null { };
+//class Null { };
 
 // local authority code -> Area
 // Use normal map and keep the Areas sorted by code for easier printing
@@ -79,42 +79,43 @@ public:
   Areas();
 
   Area& getArea(const std::string& localAuthorityCode);
+
   void setArea(const std::string& localAuthorityCode, const Area& area);
+
   size_t size() const noexcept;
-  
+
   void populateFromAuthorityCodeCSV(
-      std::istream& is,
-      const BethYw::SourceColumnMapping& cols,
-      const StringFilterSet * const areas = nullptr)
-      noexcept(false);
+          std::istream& is,
+          const BethYw::SourceColumnMapping& cols,
+          const StringFilterSet* const areas = nullptr
+  ) noexcept(false);
 
   void populateFromWelshStatsJSON(
-    std::istream& is,
-    const BethYw::SourceColumnMapping& cols,
-    const StringFilterSet* const areasFilter,
-    const StringFilterSet* const measuresFilter,
-    const YearFilterTuple* const yearsFilter 
+          std::istream& is,
+          const BethYw::SourceColumnMapping& cols,
+          const StringFilterSet* const areasFilter,
+          const StringFilterSet* const measuresFilter,
+          const YearFilterTuple* const yearsFilter
   ) noexcept(false);
 
   void populateFromAuthorityByYearCSV(
-      std::istream& is,
-      const BethYw::SourceColumnMapping& cols,
-      const StringFilterSet* const areasFilter,
-      const StringFilterSet* const measuresFilter,
-      const YearFilterTuple* const yearsFilter 
+          std::istream& is,
+          const BethYw::SourceColumnMapping& cols,
+          const StringFilterSet* const areasFilter,
+          const StringFilterSet* const measuresFilter,
+          const YearFilterTuple* const yearsFilter
   ) noexcept(false);
 
-  /* !!! populate(is, type, cols) removes as per canvas discussion */ 
+  /* !!! populate(is, type, cols) removes as per canvas discussion */
 
   void populate(
-      std::istream& is,
-      const BethYw::SourceDataType& type,
-      const BethYw::SourceColumnMapping& cols,
-      const StringFilterSet * const areasFilter = nullptr,
-      const StringFilterSet * const measuresFilter = nullptr,
-      const YearFilterTuple * const yearsFilter = nullptr)
-      noexcept(false);
-
+          std::istream& is,
+          const BethYw::SourceDataType& type,
+          const BethYw::SourceColumnMapping& cols,
+          const StringFilterSet* const areasFilter = nullptr,
+          const StringFilterSet* const measuresFilter = nullptr,
+          const YearFilterTuple* const yearsFilter = nullptr
+  ) noexcept(false);
 
   std::string toJSON() const;
 

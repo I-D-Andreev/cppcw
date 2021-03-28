@@ -28,73 +28,73 @@
 
 const char DIR_SEP =
 #ifdef _WIN32
-    '\\';
+        '\\';
 #else
-    '/';
+        '/';
 #endif
 
 namespace BethYw {
 
-/*
-  Student number!
-*/
-const std::string STUDENT_NUMBER = "955058";
+  /*
+   Student number!
+  */
+  const std::string STUDENT_NUMBER = "955058";
 
-const std::string IMPORT_ALL_ARG = "all";
+  const std::string IMPORT_ALL_ARG = "all";
 
-/*
-  Run Beth Yw?, parsing the command line arguments and acting upon them.
-*/
-int run(int argc, char *argv[]);
+  /*
+   Run Beth Yw?, parsing the command line arguments and acting upon them.
+  */
+  int run(int argc, char* argv[]);
 
-/*
-  Create a cxxopts instance.
-*/
-cxxopts::Options cxxoptsSetup();
+  /*
+   Create a cxxopts instance.
+  */
+  cxxopts::Options cxxoptsSetup();
 
-/*
-  Parse the datasets argument and return a std::vector of all the datasets
-  to import. InputFileSource is declared in datasets.h.
-*/
-std::vector<BethYw::InputFileSource> parseDatasetsArg(
-  cxxopts::ParseResult& args);
+  /*
+   Parse the datasets argument and return a std::vector of all the datasets
+   to import. InputFileSource is declared in datasets.h.
+  */
+  std::vector<BethYw::InputFileSource> parseDatasetsArg(
+          cxxopts::ParseResult& args);
 
-/*
-  Parse the areas argument and return a std::unordered_set of all the
-  areas to import, or an empty set if all areas should be imported.
-*/
-StringFilterSet parseAreasArg(cxxopts::ParseResult& args);
-
-
-/*
-  Parse the measures argument and return a std::unordered_set of all the
-  measures to import, or an empty set if all measures should be imported.
-*/
-StringFilterSet parseMeasuresArg(cxxopts::ParseResult& args);
+  /*
+   Parse the areas argument and return a std::unordered_set of all the
+   areas to import, or an empty set if all areas should be imported.
+  */
+  StringFilterSet parseAreasArg(cxxopts::ParseResult& args);
 
 
-/*
-  Parse the year argument and return a tuple 
-  containing the start and end (inclusive) of the year range.
-*/
-YearFilterTuple parseYearsArg(cxxopts::ParseResult& args);
+  /*
+   Parse the measures argument and return a std::unordered_set of all the
+   measures to import, or an empty set if all measures should be imported.
+  */
+  StringFilterSet parseMeasuresArg(cxxopts::ParseResult& args);
 
 
-/*
-  Load the areas.csv file.
-*/
-void loadAreas(Areas& areas, const std::string& dir, const StringFilterSet& areasFilter) noexcept;
+  /*
+   Parse the year argument and return a tuple
+   containing the start and end (inclusive) of the year range.
+  */
+  YearFilterTuple parseYearsArg(cxxopts::ParseResult& args);
 
-/*
-  Load the remaining datasets.
-*/
-void loadDatasets(Areas& areas,
- const std::string& dir,
- std::vector<BethYw::InputFileSource>& datasetsToImport,
- const StringFilterSet& areasFilter,
- const StringFilterSet& measuresFilter,
- const YearFilterTuple& yearsFilter
- ) noexcept;
+
+  /*
+   Load the areas.csv file.
+  */
+  void loadAreas(Areas& areas, const std::string& dir, const StringFilterSet& areasFilter) noexcept;
+
+  /*
+    Load the remaining datasets.
+  */
+  void loadDatasets(Areas& areas,
+                    const std::string& dir,
+                    std::vector<BethYw::InputFileSource>& datasetsToImport,
+                    const StringFilterSet& areasFilter,
+                    const StringFilterSet& measuresFilter,
+                    const YearFilterTuple& yearsFilter
+  ) noexcept;
 
 } // namespace BethYw
 
@@ -102,10 +102,10 @@ void loadDatasets(Areas& areas,
 namespace string_operations {
   // Convert to lowerCase letters.
   std::string stringToLower(std::string str);
-  
+
   // Split the string based on a provided delimiter. 
   std::vector<std::string> splitString(const std::string& str, char delimiter);
-  
+
   // Check if a string contains only digits.
   bool isPositiveNumber(const std::string& numStr);
 
