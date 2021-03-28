@@ -422,30 +422,32 @@ YearFilterTuple BethYw::parseYearsArg(cxxopts::ParseResult& args) {
 
   // All the years in the arg should be numbers
   for(const auto& year : years){
-    if(!helpers::isNumber(year)){
+    if(!helpers::isPositiveNumber(year)){
       throw std::invalid_argument(invalidArgMessage);
     }
   }
 
   // The years should have the correct number of digits.
   // The years are either "0" or a four digit number.
-  for(const auto& year : years){
-    if(year != "0" && year.size() != 4) {
+  for(const auto& year : years) {
+    if (year == "0") {
+      return {0, 0};
+    }
+  }
+
+  for(const auto& year : years) {
+    if(year.size() != 4) {
       throw std::invalid_argument(invalidArgMessage);
     }
   }
 
   // Due to our previous check, the year is guaranteed to be a non-negative number.
-  std::vector<unsigned int> numYears;
+  std::vector<unsigned int> yearsAsNumbers;
   for(const auto& strYear: years) {
-    numYears.push_back(static_cast<unsigned int>(helpers::stringToNumber(strYear)));
+    yearsAsNumbers.push_back(static_cast<unsigned int>(helpers::stringToNumber(strYear)));
   }
 
-  if (numYears[0] == 0 || (numYears.size() == 2 && numYears[1] == 0)){
-    return {0, 0};
-  }
-
-  return {numYears[0], numYears[numYears.size()-1]};
+  return {yearsAsNumbers[0], yearsAsNumbers[yearsAsNumbers.size()-1]};
 }
 
 
@@ -609,7 +611,7 @@ std::vector<std::string> helpers::splitString(const std::string& str, char delim
 }
 
 
-bool helpers::isNumber(const std::string& numStr){
+bool helpers::isPositiveNumber(const std::string& numStr){
   for(char c : numStr){
     if(!std::isdigit(c)){
       return false;

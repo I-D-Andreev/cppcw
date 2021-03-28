@@ -107,7 +107,7 @@ namespace helpers {
   std::vector<std::string> splitString(const std::string& str, char delimiter);
   
   // Check if a string contains only digits.
-  bool isNumber(const std::string& numStr);
+  bool isPositiveNumber(const std::string& numStr);
 
   // Check if a string contains only leters.
   bool isWord(const std::string& wordStr);
