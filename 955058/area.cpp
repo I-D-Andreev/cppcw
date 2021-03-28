@@ -387,8 +387,6 @@ std::ostream& operator<<(std::ostream& os, Area& area) {
     bool eq = area1 == area2;
 */
 bool operator==(const Area& lhs, const Area& rhs) {
-  // todo1: should localAuthority check be case insensitive
-  // names and measures saving is already lowercase
   return (lhs.localAuthorityCode == rhs.localAuthorityCode) && (lhs.names == rhs.names) && (lhs.measures == rhs.measures);
 }
 

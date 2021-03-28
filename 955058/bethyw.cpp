@@ -60,11 +60,10 @@ namespace {
       An std::unordered_set of std::strings corresponding to specific argument
       to import, or an empty set if all should be imported.
 
-    // @throws todo1?
-    //   std::invalid_argument if the argument contains an invalid areas value with
-    //   message: Invalid input for area argument
+    @throws 
+      std::invalid_argument if the argument contains an invalid areas value with
+      message: Invalid input for area argument
   */
-  // todo1: should this throw
   StringFilterSet parseStringArg(
       const cxxopts::ParseResult& args,
       const std::string& argName){
