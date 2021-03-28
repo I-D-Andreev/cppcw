@@ -51,6 +51,7 @@ private:
 public:
   Area();
   Area(const std::string& localAuthorityCode_);
+
   std::string getLocalAuthorityCode() const;
   std::string getName(const std::string& langCode) const;
   void setName(const std::string& langCode, const std::string& name);
@@ -58,17 +59,17 @@ public:
   void setMeasure(const std::string& measureCode, const Measure& measure);
   size_t size() const noexcept;
   
-  // get a name given a lang code or return empty if it doesn't exist
+  /* get a name given a lang code or return empty if it doesn't exist */
   std::string getNameOrEmpty(const std::string& langCode) const;
 
-  // get list of measures sorted by their codename
+  /* get list of measures sorted by their codename */
   std::vector<std::string> getMeasureCodesSorted() const;
 
-  // get list of all names for the specified area
+  /* get list of all names for the specified area */
   std::vector<std::string> getAllNames() const;
   
-  // combine this Area with another one, updating the overlapping variables
-  // and adding/keeping non-overlapping ones
+  /* Combine this Area with another one, updating the overlapping variables
+  and adding/keeping non-overlapping ones. */
   void combineArea(const Area& other);
 
   friend std::ostream& operator<<(std::ostream& os, Area& area);

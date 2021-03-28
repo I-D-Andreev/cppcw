@@ -59,10 +59,6 @@ namespace {
     @return
       An std::unordered_set of std::strings corresponding to specific argument
       to import, or an empty set if all should be imported.
-
-    @throws 
-      std::invalid_argument if the argument contains an invalid areas value with
-      message: Invalid input for area argument
   */
   StringFilterSet parseStringArg(
       const cxxopts::ParseResult& args,
@@ -156,7 +152,8 @@ int BethYw::run(int argc, char *argv[]) {
     return 1;
   }
   catch(const std::exception& ex) {
-    // argument loading / runtime exceptions
+    // argument loading / runtime and general exceptions
+    std::cerr << "An error has occurred: " << std::endl;
     std::cerr << ex.what() << std::endl;
     return 1;
   }
@@ -258,7 +255,7 @@ std::vector<BethYw::InputFileSource> BethYw::parseDatasetsArg(
   size_t numDatasets = InputFiles::NUM_DATASETS;
   auto &allDatasets = InputFiles::DATASETS;
 
-  // { dataset code : dataset position in array }
+  // { dataset code : dataset position/index in allDatasets array }
   // Save the position in the datasets array so that the dataset is not copied.
   std::unordered_map <std::string, unsigned int> datasets;
 
@@ -621,10 +618,6 @@ bool string_operations::isPositiveNumber(const std::string& numStr){
 }
 
 
-int string_operations::stringToNumber(const std::string& numStr) {
-  return std::stoi(numStr);
-}
-
 bool string_operations::isWord(const std::string& wordStr) {
   for (char c : wordStr) {
     if(!isalpha(c)) {
@@ -633,6 +626,11 @@ bool string_operations::isWord(const std::string& wordStr) {
   }
 
   return true;
+}
+
+
+int string_operations::stringToNumber(const std::string& numStr) {
+  return std::stoi(numStr);
 }
 
 

@@ -56,6 +56,14 @@ std::string InputSource::getSource() const noexcept {
 InputFile::InputFile(const std::string& filePath) : InputSource(filePath), inputStream() {
 }
 
+
+InputFile::~InputFile(){
+  if(inputStream.is_open()){
+    inputStream.close();
+  }
+}
+
+
 /*
   TODO: InputFile::open()
 
@@ -85,10 +93,4 @@ std::istream& InputFile::open(){
   }
 
   return inputStream;
-}
-
-InputFile::~InputFile(){
-  if(inputStream.is_open()){
-    inputStream.close();
-  }
 }

@@ -307,9 +307,9 @@ void Measure::combineMeasure(const Measure& other) {
 
 
 /*
-    Returns a vector of measurement readings.
-    The first element of the pair is the measurement year, while the second is the reading itself.
-  */
+  Returns a vector of measurement readings.
+  The first element of the pair is the measurement year, while the second is the reading itself.
+*/
 std::vector<std::pair<size_t, double>> Measure::getAllReadingsSorted() const {
   std::vector<std::pair<size_t, double>> readings;
 

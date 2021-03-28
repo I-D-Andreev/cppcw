@@ -96,18 +96,6 @@ std::string Area::getName(const std::string& langCode) const {
 
 
 /*
-  Either get the name if it exists or return empty if it doesn't.
-*/
-std::string Area::getNameOrEmpty(const std::string& langCode) const {
-  try {
-    return getName(langCode);
-  }
-  catch(const std::out_of_range& ex) {
-    return std::string();
-  }
-}
-
-/*
   TODO: Area::setName(lang, name)
 
   Set a name for the Area in a specific language.
@@ -252,22 +240,14 @@ size_t Area::size() const noexcept {
     return measures.size();
 }
 
-/*
-  Combine this area with another one.
-  Overlapping values should be overriden,
-  while non-overlapping ones should be kept/added.
-*/
-void Area::combineArea(const Area& other) {
-  localAuthorityCode = other.localAuthorityCode;
 
-  for(const auto& keyValPair : other.names) {
-    names[keyValPair.first] = keyValPair.second;
+std::string Area::getNameOrEmpty(const std::string& langCode) const {
+  try {
+    return getName(langCode);
   }
-
-  for(const auto& keyValPair : other.measures) {
-    setMeasure(keyValPair.first, keyValPair.second);
+  catch(const std::out_of_range& ex) {
+    return std::string();
   }
-
 }
 
 
@@ -291,6 +271,26 @@ std::vector<std::string> Area::getAllNames() const {
 
   return allNames;
 }
+
+
+/*
+  Combine this area with another one.
+  Overlapping values should be overriden,
+  while non-overlapping ones should be kept/added.
+*/
+void Area::combineArea(const Area& other) {
+  localAuthorityCode = other.localAuthorityCode;
+
+  for(const auto& keyValPair : other.names) {
+    names[keyValPair.first] = keyValPair.second;
+  }
+
+  for(const auto& keyValPair : other.measures) {
+    setMeasure(keyValPair.first, keyValPair.second);
+  }
+
+}
+
 
 /*
   TODO: operator<<(os, area)

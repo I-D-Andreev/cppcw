@@ -50,8 +50,12 @@ namespace {
     return (year >= std::min(year1, year2) && year <= std::max(year1, year2));
   }
 
-  // copy the filter into a lowercase set so that we can 
-  // check in constant time for case-insensitive filtering
+
+  /* 
+    Convert the filter to lowercase so that we can 
+    check in constant time for case-insensitive filtering.
+    e.g. aRg1 and arG1 should not result in repetition 
+  */
   StringFilterSet lowerCaseFilter(const StringFilterSet* const filter) {
     StringFilterSet lowerCaseFilter;
 
@@ -66,9 +70,11 @@ namespace {
     return lowerCaseFilter;
   }
 
-  // check if a lowercase filter contains a certain code (area code/measure code)
-  // if the filter contains the code or is empty, return true
-  // otherwise return false
+  /*
+    Check if a lowercase filter contains a certain code (area code/measure code).
+    If the filter contains the code or is empty, return true.
+    Otherwise return false.
+  */
   bool filterContains(const StringFilterSet& lowerCaseFilter, const std::string& code) {
     std::string lowerCaseCode = string_operations::stringToLower(code);
 
@@ -79,7 +85,10 @@ namespace {
     return true;
   }
 
-  // check if the 'subString' is a substring of 'fullString' in a case-insensitive way
+
+  /*
+    Check if the 'subString' is a substring of 'fullString' in a case-insensitive way.
+  */
   bool isSubstring(const std::string& subString, const std::string& fullString) {
     std::string subStrLower = string_operations::stringToLower(subString);
     std::string fullStrLower = string_operations::stringToLower(fullString);
@@ -87,9 +96,10 @@ namespace {
     return (fullStrLower.find(subStrLower) != std::string::npos);
   }
 
-
-  // An area should be included if any of the values in the areasFilter
-  // is a subset of either the Area's code or any of its names
+  /*
+   An area should be included if any of the values in the areasFilter
+   is a subset of either the Area's code or any of its names.
+  */
   bool shouldIncludeArea(const std::string& areaCode, const std::vector<std::string>& areaNames, const StringFilterSet* const areasFilter) {
     if (areasFilter == nullptr || areasFilter->empty()) {
       return true;
@@ -110,13 +120,13 @@ namespace {
     return false;
   }
 
-
-  // An area should be included if any of the values in the areasFilter
-  // is a subset of either the Area's code or any of its names
+  /*
+   An area should be included if any of the values in the areasFilter
+   is a subset of either the Area's code or any of its names.
+  */
   bool shouldIncludeArea(const Area& area, const StringFilterSet* const areasFilter) {
     return ::shouldIncludeArea(area.getLocalAuthorityCode(), area.getAllNames(), areasFilter);
   }
-
 } // end of anonymous namespace
 
 
@@ -134,42 +144,6 @@ using json = nlohmann::json;
     Areas data = Areas();
 */
 Areas::Areas() : areas() {
-}
-
-/*
-  TODO: Areas::setArea(localAuthorityCode, area)
-
-  Add a particular Area to the Areas object.
-
-  If an Area already exists with the same local authority code, overwrite all
-  data contained within the existing Area with those in the new
-  Area (i.e. they should be combined, but the new Area's data should take
-  precedence, e.g. replace a name with the same language identifier).
-
-  @param localAuthorityCode
-    The local authority code of the Area
-
-  @param area
-    The Area object that will contain the Measure objects
-
-  @return
-    void
-
-  @example
-    Areas data = Areas();
-    std::string localAuthorityCode = "W06000023";
-    Area area(localAuthorityCode);
-    data.setArea(localAuthorityCode, area);
-*/
-void Areas::setArea(const std::string& localAuthorityCode, const Area& area) {
-  const std::string lowerCaseCode = string_operations::stringToLower(localAuthorityCode);
-  auto it = areas.find(lowerCaseCode);
-
-  if(it == areas.end()) {
-    areas[lowerCaseCode] = area;
-  } else {
-    it->second.combineArea(area);
-  }
 }
 
 
@@ -206,6 +180,43 @@ Area& Areas::getArea(const std::string& localAuthorityCode) {
   }
 
   return it->second;
+}
+
+
+/*
+  TODO: Areas::setArea(localAuthorityCode, area)
+
+  Add a particular Area to the Areas object.
+
+  If an Area already exists with the same local authority code, overwrite all
+  data contained within the existing Area with those in the new
+  Area (i.e. they should be combined, but the new Area's data should take
+  precedence, e.g. replace a name with the same language identifier).
+
+  @param localAuthorityCode
+    The local authority code of the Area
+
+  @param area
+    The Area object that will contain the Measure objects
+
+  @return
+    void
+
+  @example
+    Areas data = Areas();
+    std::string localAuthorityCode = "W06000023";
+    Area area(localAuthorityCode);
+    data.setArea(localAuthorityCode, area);
+*/
+void Areas::setArea(const std::string& localAuthorityCode, const Area& area) {
+  const std::string lowerCaseCode = string_operations::stringToLower(localAuthorityCode);
+  auto it = areas.find(lowerCaseCode);
+
+  if(it == areas.end()) {
+    areas[lowerCaseCode] = area;
+  } else {
+    it->second.combineArea(area);
+  }
 }
 
 
@@ -327,6 +338,7 @@ void Areas::populateFromAuthorityCodeCSV(
     throw std::runtime_error("Error populating authority codes: " + std::string(ex.what()));
   }
 }
+
 
 /*
   TODO: Areas::populateFromWelshStatsJSON(is,
@@ -905,8 +917,7 @@ std::string Areas::toJSON() const {
 
   json j;
   for(const auto& keyValPair : areas) {
-    // the key is lowercase, so take the area itself and then its codename to
-    // get the original area's code
+    // The key is lowercase, so take the original through the Area itself.
     j[keyValPair.second.getLocalAuthorityCode()] = keyValPair.second.toJSON();
   }
   

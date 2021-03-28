@@ -78,9 +78,9 @@ private:
 public:
   Areas();
 
-  size_t size() const noexcept;
   Area& getArea(const std::string& localAuthorityCode);
   void setArea(const std::string& localAuthorityCode, const Area& area);
+  size_t size() const noexcept;
   
   void populateFromAuthorityCodeCSV(
       std::istream& is,
@@ -88,20 +88,20 @@ public:
       const StringFilterSet * const areas = nullptr)
       noexcept(false);
 
-  void populateFromAuthorityByYearCSV(
-      std::istream& is,
-      const BethYw::SourceColumnMapping& cols,
-      const StringFilterSet* const areasFilter,
-      const StringFilterSet* const measuresFilter,
-      const YearFilterTuple* const yearsFilter 
-  ) noexcept(false);
-
   void populateFromWelshStatsJSON(
     std::istream& is,
     const BethYw::SourceColumnMapping& cols,
     const StringFilterSet* const areasFilter,
     const StringFilterSet* const measuresFilter,
     const YearFilterTuple* const yearsFilter 
+  ) noexcept(false);
+
+  void populateFromAuthorityByYearCSV(
+      std::istream& is,
+      const BethYw::SourceColumnMapping& cols,
+      const StringFilterSet* const areasFilter,
+      const StringFilterSet* const measuresFilter,
+      const YearFilterTuple* const yearsFilter 
   ) noexcept(false);
 
   /* !!! populate(is, type, cols) removes as per canvas discussion */ 
@@ -116,9 +116,9 @@ public:
       noexcept(false);
 
 
-  friend std::ostream& operator<<(std::ostream& os, Areas& areas);
-
   std::string toJSON() const;
+
+  friend std::ostream& operator<<(std::ostream& os, Areas& areas);
 };
 
 #endif // AREAS_H
