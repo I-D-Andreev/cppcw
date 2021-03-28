@@ -57,8 +57,8 @@ InputFile::InputFile(const std::string& filePath) : InputSource(filePath), input
 }
 
 
-InputFile::~InputFile(){
-  if(inputStream.is_open()){
+InputFile::~InputFile() {
+  if (inputStream.is_open()) {
     inputStream.close();
   }
 }
@@ -81,14 +81,14 @@ InputFile::~InputFile(){
     InputFile input("data/areas.csv");
     input.open();
 */
-std::istream& InputFile::open(){
-  if(inputStream.is_open()){
+std::istream& InputFile::open() {
+  if (inputStream.is_open()) {
     return inputStream;
   }
 
   inputStream.open(getSource(), std::ifstream::in);
 
-  if(!inputStream){
+  if (!inputStream) {
     throw std::runtime_error("InputFile::open: Failed to open file " + getSource());
   }
 

@@ -25,7 +25,7 @@
 #include "measure.h"
 #include "bethyw.h"
 
-Measure::Measure() : Measure("", ""){}
+Measure::Measure() : Measure("", "") {}
 
 /*
   TODO: Measure::Measure(codename, label);
@@ -47,9 +47,9 @@ Measure::Measure() : Measure("", ""){}
     Measure measure(codename, label);
 */
 Measure::Measure(std::string codename_, const std::string& label_) :
-  codename(string_operations::stringToLower(codename_)),
-  label(label_),
-  values(){}
+        codename(string_operations::stringToLower(codename_)),
+        label(label_),
+        values() {}
 
 /*
   TODO: Measure::getCodename()
@@ -148,7 +148,7 @@ void Measure::setLabel(const std::string& newLabel) {
 double Measure::getValue(size_t year) const {
   auto it = values.find(year);
 
-  if(it == values.end()) {
+  if (it == values.end()) {
     throw std::out_of_range("No value found for year " + std::to_string(year));
   }
 
@@ -222,8 +222,8 @@ size_t Measure::size() const noexcept {
     measure.setValue(1999, 12345679.9);
     auto diff = measure.getDifference(); // returns 1.0
 */
-double Measure::getDifference() const noexcept{
-  if(size() <= 1) {
+double Measure::getDifference() const noexcept {
+  if (size() <= 1) {
     return 0;
   }
 
@@ -252,9 +252,9 @@ double Measure::getDifference() const noexcept{
     auto diff = measure.getDifferenceAsPercentage();
 */
 double Measure::getDifferenceAsPercentage() const noexcept {
-  if(size() <= 1) {
-      return 0;
-    }
+  if (size() <= 1) {
+    return 0;
+  }
 
   double smallest = values.begin()->second;
 
@@ -279,13 +279,13 @@ double Measure::getDifferenceAsPercentage() const noexcept {
     auto diff = measure.getDifference(); // returns 1
 */
 double Measure::getAverage() const noexcept {
-  if(size() == 0) {
+  if (size() == 0) {
     return 0;
   }
 
   double sum = 0;
-  for(const auto& keyValuePair : values) {
-    sum+= keyValuePair.second;
+  for (const auto& keyValuePair : values) {
+    sum += keyValuePair.second;
   }
 
   return sum / size();
@@ -300,7 +300,7 @@ void Measure::combineMeasure(const Measure& other) {
   codename = other.codename;
   label = other.label;
 
-  for(const auto& keyValuePair: other.values) {
+  for (const auto& keyValuePair: other.values) {
     values[keyValuePair.first] = keyValuePair.second;
   }
 }
@@ -319,7 +319,6 @@ std::vector<std::pair<size_t, double>> Measure::getAllReadingsSorted() const {
 
   return readings;
 }
-
 
 
 /*
@@ -358,12 +357,12 @@ std::vector<std::pair<size_t, double>> Measure::getAllReadingsSorted() const {
     measure.setValue(1999, 12345678.9);
     std::cout << measure << std::end;
 */
-std::ostream& operator<< (std::ostream& os, const Measure& measure) {
+std::ostream& operator<<(std::ostream& os, const Measure& measure) {
   const int DECIMAL_PRECISION = 6; // chars after decimal point
-  
+
   // Number of characters per column. Initially, the measure 
   // name "Average" (and "% Diff.") will take the most space at 7 chars.
-  const int INITIAL_COLUMN_SPACING = 7; 
+  const int INITIAL_COLUMN_SPACING = 7;
   const int SPACE_BETWEEN_COLUMNS = 2;
   std::string spaceBetweenColumnsStr = std::string(SPACE_BETWEEN_COLUMNS, ' ');
 
@@ -371,7 +370,7 @@ std::ostream& operator<< (std::ostream& os, const Measure& measure) {
 
   std::vector<std::pair<size_t, double>> readings = measure.getAllReadingsSorted();
 
-  if(readings.size() == 0) {
+  if (readings.empty()) {
     os << "<no data>" << std::endl;
     return os;
   }
@@ -379,17 +378,17 @@ std::ostream& operator<< (std::ostream& os, const Measure& measure) {
 
   // Check if any value will take more space than allocated
   int columnSpacing = INITIAL_COLUMN_SPACING;
-  for(const auto& reading : readings) {
+  for (const auto& reading : readings) {
     columnSpacing = std::max(columnSpacing, string_operations::charsInDouble(reading.second, DECIMAL_PRECISION));
   }
 
   // Measure Names Row
-  for(const auto& reading : readings){
+  for (const auto& reading : readings) {
     os << std::setw(columnSpacing) << reading.first;
     os << spaceBetweenColumnsStr;
   }
 
-  for(const auto& additionalName : {"Average", "Diff.", "% Diff."}){
+  for (const auto& additionalName : {"Average", "Diff.", "% Diff."}) {
     os << std::setw(columnSpacing) << additionalName;
     os << spaceBetweenColumnsStr;
   }
@@ -397,12 +396,13 @@ std::ostream& operator<< (std::ostream& os, const Measure& measure) {
   os << std::endl;
   // Measure Values Row
   os << std::fixed;
-  for(const auto& reading : readings){
+  for (const auto& reading : readings) {
     os << std::setw(columnSpacing) << std::setprecision(DECIMAL_PRECISION) << reading.second;
     os << spaceBetweenColumnsStr;
   }
 
-  for(const auto& additionalVal : {measure.getAverage(), measure.getDifference(), measure.getDifferenceAsPercentage()}) {
+  for (const auto& additionalVal : {measure.getAverage(), measure.getDifference(),
+                                    measure.getDifferenceAsPercentage()}) {
     os << std::setw(columnSpacing) << std::setprecision(DECIMAL_PRECISION) << additionalVal;
     os << spaceBetweenColumnsStr;
   }
@@ -430,7 +430,6 @@ std::ostream& operator<< (std::ostream& os, const Measure& measure) {
 bool operator==(const Measure& lhs, const Measure& rhs) {
   return (lhs.codename == rhs.codename) && (lhs.label == rhs.label) && (lhs.values == rhs.values);
 }
-
 
 
 json Measure::toJSON() const {

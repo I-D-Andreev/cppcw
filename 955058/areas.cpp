@@ -78,7 +78,7 @@ namespace {
   bool filterContains(const StringFilterSet& lowerCaseFilter, const std::string& code) {
     std::string lowerCaseCode = string_operations::stringToLower(code);
 
-    if(!lowerCaseFilter.empty() && lowerCaseFilter.count(lowerCaseCode) == 0) {
+    if (!lowerCaseFilter.empty() && lowerCaseFilter.count(lowerCaseCode) == 0) {
       return false;
     }
 
@@ -100,7 +100,8 @@ namespace {
    An area should be included if any of the values in the areasFilter
    is a subset of either the Area's code or any of its names.
   */
-  bool shouldIncludeArea(const std::string& areaCode, const std::vector<std::string>& areaNames, const StringFilterSet* const areasFilter) {
+  bool shouldIncludeArea(const std::string& areaCode, const std::vector<std::string>& areaNames,
+                         const StringFilterSet* const areasFilter) {
     if (areasFilter == nullptr || areasFilter->empty()) {
       return true;
     }
@@ -110,8 +111,8 @@ namespace {
 
 
     for (const std::string& partialValue : *areasFilter) {
-      for(const std::string& nameOrCode : namesAndCode) {
-        if(::isSubstring(partialValue, nameOrCode)) {
+      for (const std::string& nameOrCode : namesAndCode) {
+        if (::isSubstring(partialValue, nameOrCode)) {
           return true;
         }
       }
@@ -175,7 +176,7 @@ Area& Areas::getArea(const std::string& localAuthorityCode) {
 
   auto it = areas.find(lowerCaseCode);
 
-  if(it == areas.end()){
+  if (it == areas.end()) {
     throw std::out_of_range("No area found matching " + localAuthorityCode);
   }
 
@@ -212,7 +213,7 @@ void Areas::setArea(const std::string& localAuthorityCode, const Area& area) {
   const std::string lowerCaseCode = string_operations::stringToLower(localAuthorityCode);
   auto it = areas.find(lowerCaseCode);
 
-  if(it == areas.end()) {
+  if (it == areas.end()) {
     areas[lowerCaseCode] = area;
   } else {
     it->second.combineArea(area);
@@ -295,9 +296,9 @@ size_t Areas::size() const noexcept {
     std::out_of_range if there are not enough columns in cols
 */
 void Areas::populateFromAuthorityCodeCSV(
-    std::istream &is,
-    const BethYw::SourceColumnMapping &cols,
-    const StringFilterSet * const areasFilter) {
+        std::istream& is,
+        const BethYw::SourceColumnMapping& cols,
+        const StringFilterSet* const areasFilter) {
 
   const std::string LANG_CODE_ENG = "eng";
   const std::string LANG_CODE_CYM = "cym";
@@ -308,17 +309,17 @@ void Areas::populateFromAuthorityCodeCSV(
 
     auto elements = string_operations::splitString(line, ',');
 
-    if(elements.size() > cols.size()){
+    if (elements.size() > cols.size()) {
       throw std::out_of_range("The parsed files contains more columns than the mapping");
     }
 
-    while(std::getline(is, line)){
-      if(line.empty()){
+    while (std::getline(is, line)) {
+      if (line.empty()) {
         continue;
       }
 
       elements = string_operations::splitString(line, ',');
-      if(elements.size() != 3){
+      if (elements.size() != 3) {
         throw std::runtime_error("Error parsing areas.csv. Three args per line expected.");
       }
 
@@ -334,7 +335,7 @@ void Areas::populateFromAuthorityCodeCSV(
       }
     }
   }
-  catch(const std::exception& ex){
+  catch (const std::exception& ex) {
     throw std::runtime_error("Error populating authority codes: " + std::string(ex.what()));
   }
 }
@@ -446,11 +447,11 @@ void Areas::populateFromAuthorityCodeCSV(
 */
 
 void Areas::populateFromWelshStatsJSON(
-  std::istream& is,
-  const BethYw::SourceColumnMapping& cols,
-  const StringFilterSet* const areasFilter,
-  const StringFilterSet* const measuresFilter,
-  const YearFilterTuple* const yearsFilter 
+        std::istream& is,
+        const BethYw::SourceColumnMapping& cols,
+        const StringFilterSet* const areasFilter,
+        const StringFilterSet* const measuresFilter,
+        const YearFilterTuple* const yearsFilter
 ) noexcept(false) {
   using SC = BethYw::SourceColumn;
 
@@ -458,12 +459,12 @@ void Areas::populateFromWelshStatsJSON(
   // as is expected by the function, so we don't need to wrap in try-catch. 
   const std::string& areaCodeIdx = cols.at(SC::AUTH_CODE);
   const std::string& nameEngIdx = cols.at(SC::AUTH_NAME_ENG);
-  
+
 
   bool singleMeasureCode = (cols.count(SC::SINGLE_MEASURE_CODE) > 0);
 
-  std::string measureCodeIdx = "";
-  std::string measureNameIdx = "";
+  std::string measureCodeIdx;
+  std::string measureNameIdx;
 
   if (!singleMeasureCode) {
     measureCodeIdx = cols.at(SC::MEASURE_CODE);
@@ -483,7 +484,7 @@ void Areas::populateFromWelshStatsJSON(
     json json;
     is >> json;
 
-    for(const auto& arrElement : json["value"].items()) {
+    for (const auto& arrElement : json["value"].items()) {
       const auto& obj = arrElement.value();
 
       std::string areaCode = obj[areaCodeIdx];
@@ -494,17 +495,17 @@ void Areas::populateFromWelshStatsJSON(
       try {
         shouldAddArea = ::shouldIncludeArea(getArea(areaCode), areasFilter);
       }
-      catch(const std::out_of_range& ex) {
+      catch (const std::out_of_range& ex) {
         shouldAddArea = ::shouldIncludeArea(areaCode, {nameEng}, areasFilter);
       }
 
-      if(!shouldAddArea) {
+      if (!shouldAddArea) {
         continue;
       }
 
       std::string measureCode;
       std::string measureLabel;
-      
+
       if (singleMeasureCode) {
         measureCode = cols.at(SC::SINGLE_MEASURE_CODE);
         measureLabel = cols.at(SC::SINGLE_MEASURE_NAME);
@@ -512,15 +513,15 @@ void Areas::populateFromWelshStatsJSON(
         measureCode = obj[measureCodeIdx];
         measureLabel = obj[measureNameIdx];
       }
-      
-      if(!::filterContains(measuresFilterLowercase, measureCode)) {
+
+      if (!::filterContains(measuresFilterLowercase, measureCode)) {
         continue;
       }
 
 
       std::string yearData = obj[yearIdx];
-      int year = string_operations::stringToNumber(yearData); 
-      if(!::shouldIncludeYear(year, yearsFilter)) {
+      int year = string_operations::stringToNumber(yearData);
+      if (!::shouldIncludeYear(year, yearsFilter)) {
         continue;
       }
 
@@ -529,27 +530,27 @@ void Areas::populateFromWelshStatsJSON(
 
       if (valueData.is_string()) {
         value = string_operations::stringToFloatingPointNumber(valueData);
-      }
-      else if (valueData.is_number()) {
+      } else if (valueData.is_number()) {
         value = valueData.get<double>();
-      }
-      else {
-        throw std::runtime_error("populateFromWelshStatsJson: expected value data of string or numberical type but got " + std::string(valueData.type_name()));
+      } else {
+        throw std::runtime_error(
+                "populateFromWelshStatsJson: expected value data of string or numberical type but got " +
+                std::string(valueData.type_name()));
       }
 
       // Not as slow as it seems.
       // The "combining" logic only loops through the "other" (second)
       // objects variables so it will only check 1 measure and its 1 value.
-      Area area {areaCode};
+      Area area{areaCode};
       area.setName("eng", nameEng);
-      Measure measure { measureCode, measureLabel};
+      Measure measure{measureCode, measureLabel};
       measure.setValue(year, value);
 
       area.setMeasure(measureCode, measure);
       setArea(areaCode, area);
     }
   }
-  catch(const std::exception& ex) {
+  catch (const std::exception& ex) {
     throw std::runtime_error("Failure parsing JSON file: " + std::string(ex.what()) + "\n");
   }
 }
@@ -621,30 +622,30 @@ void Areas::populateFromWelshStatsJSON(
 */
 
 void Areas::populateFromAuthorityByYearCSV(
-  std::istream& is,
-  const BethYw::SourceColumnMapping& cols,
-  const StringFilterSet* const areasFilter,
-  const StringFilterSet* const measuresFilter,
-  const YearFilterTuple* const yearsFilter 
-  ) {
-  
+        std::istream& is,
+        const BethYw::SourceColumnMapping& cols,
+        const StringFilterSet* const areasFilter,
+        const StringFilterSet* const measuresFilter,
+        const YearFilterTuple* const yearsFilter
+) {
+
   // Copy the case-sensitive filter and convert it to lowercase
   // as our input args should be case-insensitive.
   // This will allow us to do case-insensitive search. 
   StringFilterSet measuresFilterLowercase = ::lowerCaseFilter(measuresFilter);
-  std::vector <int> years;
+  std::vector<int> years;
 
   // firtly check that this measure/file should be imported at all
   const std::string& fileMeasure = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE);
   if (!::filterContains(measuresFilterLowercase, fileMeasure)) {
     return;
-  } 
+  }
 
   // a single line in the file.
   std::string line;
 
   // the elements of each line, when separated by ','
-  std::vector <std::string> lineElements;
+  std::vector<std::string> lineElements;
 
 
   // parse first line
@@ -655,12 +656,12 @@ void Areas::populateFromAuthorityByYearCSV(
     throw std::runtime_error("Expected AuthorityCode and at least one year");
   }
 
-  for(size_t i=1; i<lineElements.size(); i++) {
+  for (size_t i = 1; i < lineElements.size(); i++) {
     try {
       int year = string_operations::stringToNumber(lineElements[i]);
       years.push_back(year);
     }
-    catch(const std::exception& ex) {
+    catch (const std::exception& ex) {
       // may throw std::invalid_argument or std::out_of_range, but
       // in both cases we will just rethrow, so catch a general type exception 
       throw std::runtime_error("Failed to parse year " + std::string(ex.what()));
@@ -672,7 +673,7 @@ void Areas::populateFromAuthorityByYearCSV(
   while (std::getline(is, line)) {
     lineElements = string_operations::splitString(line, ',');
 
-    if(lineElements.size() <= 2){
+    if (lineElements.size() <= 2) {
       // disregard lines with only authority code or empty lines
       continue;
     }
@@ -680,41 +681,41 @@ void Areas::populateFromAuthorityByYearCSV(
     std::string areaCode = lineElements[0];
 
     bool shouldAddArea = false;
-    
+
     try {
       shouldAddArea = ::shouldIncludeArea(getArea(areaCode), areasFilter);
     }
-    catch(const std::out_of_range& ex){
+    catch (const std::out_of_range& ex) {
       shouldAddArea = ::shouldIncludeArea(areaCode, {}, areasFilter);
     }
 
-    if(!shouldAddArea) {
+    if (!shouldAddArea) {
       continue;
     }
 
 
-    Area area {areaCode};
-    
+    Area area{areaCode};
+
     std::string measureCode = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_CODE);
     std::string measureLabel = cols.at(BethYw::SourceColumn::SINGLE_MEASURE_NAME);
-    Measure measure {measureCode, measureLabel};
-    
+    Measure measure{measureCode, measureLabel};
+
     // Parse the values on the line
     // years in years vector start from 0
     // values in the lineElements vector start from 1 as the authority code is the 0th element
-    for(size_t yearsIndex=0, valuesIndex=1; 
-      yearsIndex < years.size() && valuesIndex < lineElements.size();
-      yearsIndex++, valuesIndex++) {
-    
+    for (size_t yearsIndex = 0, valuesIndex = 1;
+         yearsIndex < years.size() && valuesIndex < lineElements.size();
+         yearsIndex++, valuesIndex++) {
+
       int year = years[yearsIndex];
       std::string value = lineElements[valuesIndex];
-      
-      if(::shouldIncludeYear(year, yearsFilter) && value != "") {
+
+      if (::shouldIncludeYear(year, yearsFilter) && value != "") {
         try {
           double valueParsed = string_operations::stringToFloatingPointNumber(value);
           measure.setValue(year, valueParsed);
         }
-        catch(const std::exception& ex) {
+        catch (const std::exception& ex) {
           // may throw std::invalid_argument or std::out_of_range, but
           // in both cases we will just rethrow, so catch a general type exception
           throw std::runtime_error("Failed to parse measurement " + std::string(ex.what()));
@@ -811,13 +812,12 @@ void Areas::populateFromAuthorityByYearCSV(
       &yearsFilter);
 */
 void Areas::populate(
-    std::istream &is,
-    const BethYw::SourceDataType &type,
-    const BethYw::SourceColumnMapping &cols,
-    const StringFilterSet * const areasFilter,
-    const StringFilterSet * const measuresFilter,
-    const YearFilterTuple * const yearsFilter)
-     {
+        std::istream& is,
+        const BethYw::SourceDataType& type,
+        const BethYw::SourceColumnMapping& cols,
+        const StringFilterSet* const areasFilter,
+        const StringFilterSet* const measuresFilter,
+        const YearFilterTuple* const yearsFilter) {
 
   if (!is) {
     throw std::runtime_error("populate: Invalid data (file) stream");
@@ -825,7 +825,7 @@ void Areas::populate(
 
   if (type == BethYw::SourceDataType::AuthorityCodeCSV) {
     populateFromAuthorityCodeCSV(is, cols, areasFilter);
-  } 
+  }
   else if (type == BethYw::SourceDataType::AuthorityByYearCSV) {
     populateFromAuthorityByYearCSV(is, cols, areasFilter, measuresFilter, yearsFilter);
   }
@@ -911,16 +911,16 @@ void Areas::populate(
     std::cout << data.toJSON();
 */
 std::string Areas::toJSON() const {
-  if (areas.size() == 0) {
+  if (areas.empty()) {
     return "{}";
   }
 
   json j;
-  for(const auto& keyValPair : areas) {
+  for (const auto& keyValPair : areas) {
     // The key is lowercase, so take the original through the Area itself.
     j[keyValPair.second.getLocalAuthorityCode()] = keyValPair.second.toJSON();
   }
-  
+
   return j.dump(/*3*/);
 }
 
@@ -1031,7 +1031,7 @@ std::string Areas::toJSON() const {
     std::cout << areas << std::end;
 */
 std::ostream& operator<<(std::ostream& os, Areas& areas) {
-  for(auto& codeAreaPair : areas.areas) {
+  for (auto& codeAreaPair : areas.areas) {
     os << codeAreaPair.second << std::endl;
   }
 
