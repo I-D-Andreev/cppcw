@@ -406,7 +406,7 @@ StringFilterSet BethYw::parseMeasuresArg(
     the message: Invalid input for years argument
 */
 
-std::tuple<unsigned int, unsigned int> BethYw::parseYearsArg(cxxopts::ParseResult& args) {
+YearFilterTuple BethYw::parseYearsArg(cxxopts::ParseResult& args) {
   
   const std::string& yearArg = args["years"].as<std::string>();
   const std::string invalidArgMessage = "Invalid input for years argument";

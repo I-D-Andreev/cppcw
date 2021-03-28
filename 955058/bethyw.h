@@ -77,7 +77,7 @@ StringFilterSet parseMeasuresArg(cxxopts::ParseResult& args);
   Parse the year argument and return a tuple 
   containing the start and end (inclusive) of the year range.
 */
-std::tuple<unsigned int, unsigned int> parseYearsArg(cxxopts::ParseResult& args);
+YearFilterTuple parseYearsArg(cxxopts::ParseResult& args);
 
 
 /*
