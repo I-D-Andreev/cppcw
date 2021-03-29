@@ -61,8 +61,8 @@ namespace {
       return lowerCaseFilter;
     }
 
-    for (const std::string& el : *filter) {
-      lowerCaseFilter.insert(string_operations::stringToLower(el));
+    for (const std::string& element : *filter) {
+      lowerCaseFilter.insert(string_operations::stringToLower(element));
     }
 
     return lowerCaseFilter;
@@ -108,9 +108,9 @@ namespace {
     namesAndCode.push_back(areaCode);
 
 
-    for (const std::string& partialValue : *areasFilter) {
+    for (const std::string& filterValue : *areasFilter) {
       for (const std::string& nameOrCode : namesAndCode) {
-        if (::isSubstring(partialValue, nameOrCode)) {
+        if (::isSubstring(filterValue, nameOrCode)) {
           return true;
         }
       }
@@ -333,7 +333,14 @@ void Areas::populateFromAuthorityCodeCSV(
       }
     }
   }
+  catch (const std::out_of_range& ex) {
+    // Catch and rethrow our out_of_range exception so that it is not instantly swallowed
+    // by the std::exception and converted to runtime_error.
+    throw std::out_of_range(ex.what());
+  }
   catch (const std::exception& ex) {
+    // Treat all other errors as runtime ones, so that the function only 
+    // throws the specified types of exceptions.
     throw std::runtime_error("Error populating authority codes: " + std::string(ex.what()));
   }
 }
@@ -474,7 +481,7 @@ void Areas::populateFromWelshStatsJSON(
 
 
   // Copy the filters in lowercase so that we can do case-insensitive
-  // checks for areas and measures.
+  // checks for measures.
   StringFilterSet measuresFilterLowercase = ::lowerCaseFilter(measuresFilter);
 
 
@@ -915,7 +922,7 @@ std::string Areas::toJSON() const {
 
   json j;
   for (const auto& keyValPair : areas) {
-    // The key is lowercase, so take the original through the Area itself.
+    // The key is the authority code, but lowercase, so get the original through the Area itself.
     j[keyValPair.second.getLocalAuthorityCode()] = keyValPair.second.toJSON();
   }
 

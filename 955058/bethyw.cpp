@@ -45,7 +45,6 @@ namespace {
     imported, i.e., the filter should be an empty set.
 
     Does not check validity of arguments.
-    Filtering is case insensitive.
 
     ! Helper function for parseAreasArg and parseMeasuresArg as they work the same.
 
@@ -564,6 +563,8 @@ void BethYw::loadDatasets(Areas& areas,
   }
 }
 
+
+/* ---- HELPER FUNCTIONS ---- */
 
 std::string string_operations::stringToLower(std::string str) {
   for (char& c : str) {

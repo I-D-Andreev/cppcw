@@ -42,6 +42,7 @@ Area::Area(std::string localAuthorityCode_) :
         names(),
         measures() {}
 
+
 /*
   TODO: Area::getLocalAuthorityCode()
 
@@ -59,6 +60,7 @@ Area::Area(std::string localAuthorityCode_) :
 std::string Area::getLocalAuthorityCode() const {
   return localAuthorityCode;
 }
+
 
 /*
   TODO: Area::getName(lang)
@@ -330,6 +332,7 @@ std::ostream& operator<<(std::ostream& os, Area& area) {
   std::string nameCym = area.getNameOrEmpty("cym");
   std::string prettyCode = "(" + area.getLocalAuthorityCode() + ")";
 
+  // Count how many names are not empty.
   int namesCount = static_cast<int>(!nameEng.empty()) + static_cast<int>(!nameCym.empty());
 
   switch (namesCount) {
@@ -338,7 +341,7 @@ std::ostream& operator<<(std::ostream& os, Area& area) {
       break;
 
     case 1:
-      // one of them is empty so we can concatenate
+      // one of them is empty so we can concatenate them
       os << nameEng << nameCym << " " << prettyCode << std::endl;
       break;
 

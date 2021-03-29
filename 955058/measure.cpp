@@ -146,11 +146,11 @@ void Measure::setLabel(const std::string& newLabel) {
     ...
     auto value = measure.getValue(1999); // returns 12345678.9
 */
-double Measure::getValue(size_t year) const noexcept(false) {
-  auto it = values.find(year);
+double Measure::getValue(size_t key) const noexcept(false) {
+  auto it = values.find(key);
 
   if (it == values.end()) {
-    throw std::out_of_range("No value found for year " + std::to_string(year));
+    throw std::out_of_range("No value found for year " + std::to_string(key));
   }
 
   return it->second;
@@ -179,8 +179,8 @@ double Measure::getValue(size_t year) const noexcept(false) {
 
     measure.setValue(1999, 12345678.9);
 */
-void Measure::setValue(size_t year, double val) {
-  values[year] = val;
+void Measure::setValue(size_t key, double val) {
+  values[key] = val;
 }
 
 
@@ -383,7 +383,7 @@ std::ostream& operator<<(std::ostream& os, const Measure& measure) {
     columnSpacing = std::max(columnSpacing, string_operations::charsInDouble(reading.second, DECIMAL_PRECISION));
   }
 
-  // Measure Names Row
+  // Measure's names row
   for (const auto& reading : readings) {
     os << std::setw(columnSpacing) << reading.first;
     os << spaceBetweenColumnsStr;
@@ -395,7 +395,8 @@ std::ostream& operator<<(std::ostream& os, const Measure& measure) {
   }
 
   os << std::endl;
-  // Measure Values Row
+  
+  // Measure's values row
   os << std::fixed;
   for (const auto& reading : readings) {
     os << std::setw(columnSpacing) << std::setprecision(DECIMAL_PRECISION) << reading.second;
